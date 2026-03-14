@@ -243,4 +243,86 @@ Predict whether a reservation is likely to be cancelled.
 
 - JWT Authentication
 
+  ```mermaid
+erDiagram
+
+    USERS {
+        int Id PK
+        string Email
+        string PasswordHash
+        string FirstName
+        string LastName
+        string Role
+        datetime CreatedAt
+        bool IsActive
+    }
+
+    ROOMS {
+        int Id PK
+        string Name
+        string Description
+        int Capacity
+        decimal PricePerNight
+        int Size
+        string BedType
+        float AverageRating
+        datetime CreatedAt
+    }
+
+    AMENITIES {
+        int Id PK
+        string Name
+    }
+
+    ROOM_AMENITIES {
+        int RoomId FK
+        int AmenityId FK
+    }
+
+    BOOKINGS {
+        int Id PK
+        int UserId FK
+        int RoomId FK
+        date CheckInDate
+        date CheckOutDate
+        decimal TotalPrice
+        string Status
+        datetime CreatedAt
+    }
+
+    PAYMENTS {
+        int Id PK
+        int BookingId FK
+        decimal Amount
+        string PaymentMethod
+        string PaymentStatus
+        datetime PaidAt
+    }
+
+    REVIEWS {
+        int Id PK
+        int UserId FK
+        int RoomId FK
+        int Rating
+        string Comment
+        datetime CreatedAt
+    }
+
+    CANCELLATION_LOGS {
+        int Id PK
+        int BookingId FK
+        datetime CancelledAt
+        int DaysBeforeCheckin
+        string Reason
+    }
+
+    USERS ||--o{ BOOKINGS : makes
+    ROOMS ||--o{ BOOKINGS : reserved
+    BOOKINGS ||--|| PAYMENTS : has
+    USERS ||--o{ REVIEWS : writes
+    ROOMS ||--o{ REVIEWS : receives
+    ROOMS ||--o{ ROOM_AMENITIES : contains
+    AMENITIES ||--o{ ROOM_AMENITIES : assigned
+    BOOKINGS ||--o{ CANCELLATION_LOGS : logs
+
 
