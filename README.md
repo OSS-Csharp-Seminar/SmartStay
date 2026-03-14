@@ -243,7 +243,7 @@ Predict whether a reservation is likely to be cancelled.
 
 - JWT Authentication
 
-  ```mermaid
+```mermaid
 erDiagram
 
     USERS {
