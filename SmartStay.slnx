@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="SmartStay.AI/SmartStay.AI.csproj" Id="e1ef7698-693d-4ad0-90ee-cd6a46d13cc4" />
+    <Project Path="SmartStay.API/SmartStay.API.csproj" Id="70d50d32-c658-4de3-855f-16fa839beea1" />
+    <Project Path="SmartStay.Application/SmartStay.Application.csproj" Id="e6337a33-836f-4b91-91b3-f402e7c2584b" />
+    <Project Path="SmartStay.Blazor/SmartStay.Blazor.csproj" Id="1eb9cc66-2351-476e-982a-4588e3020ab9" />
+    <Project Path="SmartStay.Domain/SmartStay.Domain.csproj" />
+    <Project Path="SmartStay.Infrastructure/SmartStay.Infrastructure.csproj" Id="570193e3-d20c-4bc3-aecd-661d90cd8f56" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
