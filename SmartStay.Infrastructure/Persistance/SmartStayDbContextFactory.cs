@@ -9,7 +9,7 @@ public class SmartStayDbContextFactory : IDesignTimeDbContextFactory<SmartStayDb
     public SmartStayDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<SmartStayDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=SmartStay;Username=postgres;Password=yourpassword");
+        optionsBuilder.UseNpgsql("Host=localhost;Database=SmartStay;Username=myuser;Password=mypassword");
 
         return new SmartStayDbContext(optionsBuilder.Options);
     }

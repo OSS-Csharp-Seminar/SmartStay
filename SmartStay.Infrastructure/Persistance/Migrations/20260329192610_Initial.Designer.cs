@@ -9,10 +9,10 @@ using SmartStay.Infrastructure.Persistance;
 
 #nullable disable
 
-namespace SmartStay.Infrastructure.Migrations
+namespace SmartStay.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(SmartStayDbContext))]
-    [Migration("20260329175058_Initial")]
+    [Migration("20260329192610_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -58,7 +58,7 @@ namespace SmartStay.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamptz")
                         .HasDefaultValueSql("now()");
 
                     b.Property<Guid>("RoomId")
@@ -94,7 +94,7 @@ namespace SmartStay.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("CancelledAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamptz")
                         .HasDefaultValueSql("now()");
 
                     b.Property<int>("DaysBeforeCheckin")
@@ -125,7 +125,7 @@ namespace SmartStay.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("PaidAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -156,7 +156,7 @@ namespace SmartStay.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamptz")
                         .HasDefaultValueSql("now()");
 
                     b.Property<int>("Rating")
@@ -244,7 +244,7 @@ namespace SmartStay.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamptz")
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Email")

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SmartStay.Infrastructure.Migrations
+namespace SmartStay.Infrastructure.Persistance.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -35,7 +35,7 @@ namespace SmartStay.Infrastructure.Migrations
                     Size = table.Column<int>(type: "integer", nullable: false),
                     BedType = table.Column<string>(type: "text", nullable: false),
                     AverageRating = table.Column<float>(type: "numeric(3,2)", nullable: false, defaultValue: 0f),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetime", nullable: false, defaultValueSql: "now()")
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
                 {
@@ -52,7 +52,7 @@ namespace SmartStay.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Role = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()"),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
@@ -91,11 +91,11 @@ namespace SmartStay.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoomId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CheckinDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
-                    CheckOutDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
+                    CheckinDate = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CheckOutDate = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
                 {
@@ -123,7 +123,7 @@ namespace SmartStay.Infrastructure.Migrations
                     RoomId = table.Column<Guid>(type: "uuid", nullable: false),
                     Rating = table.Column<int>(type: "integer", nullable: false),
                     Comment = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
                 {
@@ -148,7 +148,7 @@ namespace SmartStay.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     BookingId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()"),
                     DaysBeforeCheckin = table.Column<int>(type: "integer", nullable: false),
                     Reason = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
                 },
@@ -172,7 +172,7 @@ namespace SmartStay.Infrastructure.Migrations
                     Amount = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
                     PaymentMethod = table.Column<string>(type: "text", nullable: false),
                     PaymentStatus = table.Column<string>(type: "text", nullable: false),
-                    PaidAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    PaidAt = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
                 },
                 constraints: table =>
                 {
