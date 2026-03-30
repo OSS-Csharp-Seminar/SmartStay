@@ -1,5 +1,6 @@
 ﻿using SmartStay.Domain.Enums;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartStay.Domain.Entities
 {
@@ -13,6 +14,8 @@ namespace SmartStay.Domain.Entities
         public int Size { get; set; }
         public BedType BedType {  get; set; }
         public float AverageRating { get; set; }
+        
+        [Column(TypeName = "timestamptz")]
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         
         public ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();

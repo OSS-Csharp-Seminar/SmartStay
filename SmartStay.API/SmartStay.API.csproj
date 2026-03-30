@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartStay.AI\SmartStay.AI.csproj" />
+    <!--<ProjectReference Include="..\SmartStay.AI\SmartStay.AI.csproj" />-->
     <ProjectReference Include="..\SmartStay.Application\SmartStay.Application.csproj" />
     <ProjectReference Include="..\SmartStay.Infrastructure\SmartStay.Infrastructure.csproj" />
   </ItemGroup>

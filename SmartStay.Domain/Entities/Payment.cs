@@ -1,5 +1,6 @@
 ﻿using SmartStay.Domain.Enums;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartStay.Domain.Entities
 {
@@ -13,6 +14,7 @@ namespace SmartStay.Domain.Entities
         public decimal Amount { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
+        [Column(TypeName = "timestamptz")]
         public DateTimeOffset? PaidAt { get; set; }
     }
 }

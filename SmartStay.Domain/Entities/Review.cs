@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartStay.Domain.Entities
 {
@@ -14,6 +15,8 @@ namespace SmartStay.Domain.Entities
         
         public int Rating { get; set; } 
         public string Comment { get; set; } = string.Empty;
+        
+        [Column(TypeName = "timestamptz")]
         public DateTimeOffset CreatedAt { get; set; }= DateTimeOffset.UtcNow;
     }
 }

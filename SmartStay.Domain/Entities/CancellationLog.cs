@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartStay.Domain.Entities
 {
@@ -9,6 +10,7 @@ namespace SmartStay.Domain.Entities
         public Guid BookingId { get; set; }
         public Booking Booking { get; set; } = null!;
         
+        [Column(TypeName = "timestamptz")]
         public DateTimeOffset CancelledAt { get; set; } = DateTimeOffset.UtcNow;
         public int DaysBeforeCheckin { get; set; }
         public string? Reason { get; set; }
