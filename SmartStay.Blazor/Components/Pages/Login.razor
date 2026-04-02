@@ -1,0 +1,32 @@
+﻿@page "/login"
+
+<PageTitle>Login</PageTitle>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>Login</h1>
+</div>
+
+<form class="p-4 rounded-3 text-white container-md d-flex justify-content-center" style="background-color:rgb(5, 39, 103)">
+    <div class="row g-3">
+        <div class="col">
+            email<br/>
+            <input type="email" class="form-control" name="email">
+        </div>
+        <div class="col">
+            password<br/>
+            <input type="password" class="form-control" name="password">
+        </div>
+    </div>
+</form>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    Don't have an account? 
+    <a href="/signin">
+        <button>Signin</button>
+    </a>
+    <br>
+    <br>
+    <a href="/password-recoveri">
+        <button>Forgot password?</button>
+    </a>
+</div>
