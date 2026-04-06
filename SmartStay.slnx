@@ -6,5 +6,7 @@
     <Project Path="SmartStay.Domain/SmartStay.Domain.csproj" />
     <Project Path="SmartStay.Infrastructure/SmartStay.Infrastructure.csproj" Id="570193e3-d20c-4bc3-aecd-661d90cd8f56" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="Tests/Tests.csproj" />
+  </Folder>
 </Solution>
