@@ -5,7 +5,7 @@ using SmartStay.Application.Interfaces;
 
 namespace SmartStay.Application.Util;
 
-public class PasswordHasherArgon2 : IPasswordHasher<string>//M.G: add exceptions later!
+public class PasswordHasherArgon2 : IPasswordHasher<string>//M.G: add exceptions later and multithread it!
 {
 
     public string Hash(string password)
