@@ -1,6 +1,8 @@
 using SmartStay.Blazor.Components;
 using SmartStay.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
+using SmartStay.Application;
+using SmartStay.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,11 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddDbContext<SmartStayDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
+
 
 var app = builder.Build();
 

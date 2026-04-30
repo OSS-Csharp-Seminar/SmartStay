@@ -1,23 +1,33 @@
 ﻿@page "/login"
 
+@using System.Diagnostics
+@using SmartStay.Application
+@using SmartStay.Application.Dto.UserDto
+@using SmartStay.Blazor.Components.Layout
+@rendermode InteractiveServer
+@layout EmptyLayout
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager Nav
+
 <PageTitle>Login</PageTitle>
 
 <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
     <h1>Login</h1>
 </div>
 
-<form class="p-4 rounded-3 text-white container-md d-flex justify-content-center" style="background-color:rgb(5, 39, 103)">
+<EditForm Model="@loginModel" OnSubmit="HandleLogin" FormName="loginForm" class="p-4 rounded-3 text-white container-md d-flex justify-content-center" style="background-color:rgb(5, 39, 103)">
     <div class="row g-3">
         <div class="col">
             email<br/>
-            <input type="email" class="form-control" name="email">
+            <InputText type="email" class="form-control" @bind-value="loginModel.email"/>
         </div>
         <div class="col">
             password<br/>
-            <input type="password" class="form-control" name="password">
+            <InputText  type="password" class="form-control" @bind-value="loginModel.password"/>
         </div>
     </div>
-</form>
+    <button type="submit" >Login</button>
+</EditForm>
 
 <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
     Don't have an account? 
@@ -26,7 +36,49 @@
     </a>
     <br>
     <br>
-    <a href="/password-recoveri">
+    <a href="/password-recovery">
         <button>Forgot password?</button>
     </a>
 </div>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+@code
+{
+    private LoginModel loginModel = new();
+
+    private class LoginModel
+    {
+        public string password { get; set; } = "";
+        public string email { get; set; } = "";
+    }
+
+    private string error="";
+    
+    private async Task HandleLogin()
+    {
+        var dto = new UserLoginRequestDto( loginModel.email,loginModel.password);
+
+        UserLoginResponseDto response ;
+        
+        try{
+            response = await AuthenticationService.Authenticate(dto);
+            
+            error="uspjeh"; 
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine("Error: "+e.Message);
+            error="Neispravan Email ili lozinka";
+            return;
+        }
+
+       
+      
+        Nav.NavigateTo("/");
+    }
+    
+}
