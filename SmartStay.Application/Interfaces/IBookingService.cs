@@ -1,0 +1,11 @@
+using SmartStay.Application.Dto.BookingDto;
+
+namespace SmartStay.Application.Interfaces;
+
+public interface IBookingService
+{
+    Task<BookingResponseDto> CreateBookingAsync(CreateBookingRequestDto dto);
+    Task<BookingResponseDto> GetBookingAsync(Guid id);
+    Task<IEnumerable<BookingResponseDto>> GetUserBookingsAsync(Guid userId);
+    Task<BookingResponseDto> CancelBookingAsync(Guid id, CancelBookingRequestDto dto);
+}

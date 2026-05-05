@@ -2,6 +2,7 @@
 using SmartStay.Application.Dto.UserDto;
 using SmartStay.Application.Interfaces;
 using SmartStay.Application.Mapper;
+using SmartStay.Application.Services;
 using SmartStay.Application.Util;
 using SmartStay.Domain.Entities;
 
@@ -15,7 +16,8 @@ public static class DependencyInjection
       //    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
       services.AddScoped<IPasswordHasher<string>, PasswordHasherArgon2>()
-         .AddTransient<IMapper<User,UserLoginResponseDto>, UserLoginResponseMapper>();
+         .AddTransient<IMapper<User,UserLoginResponseDto>, UserLoginResponseMapper>()
+         .AddScoped<IBookingService, BookingService>();
       
       return services;
    }
