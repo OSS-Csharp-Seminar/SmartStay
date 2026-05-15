@@ -1,12 +1,16 @@
 ﻿@page "/login"
+@page "/"
 
 @using System.Diagnostics
+@using Blazored.LocalStorage
 @using SmartStay.Application
 @using SmartStay.Application.Dto.UserDto
+@using SmartStay.Application.Interfaces
 @using SmartStay.Blazor.Components.Layout
-@rendermode InteractiveServer
-@layout EmptyLayout
+@layout AuthenticaitonLayout
+@inject ILocalStorageService LocalStorage
 @inject IAuthenticationService AuthenticationService
+@inject ICustomAuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Nav
 
 <PageTitle>Login</PageTitle>
@@ -62,10 +66,14 @@
     {
         var dto = new UserLoginRequestDto( loginModel.email,loginModel.password);
 
-        UserLoginResponseDto response ;
+        AuthenticationResponseDto response ;
         
         try{
             response = await AuthenticationService.Authenticate(dto);
+            
+            //M.G: Not secure but simple(vulnerable to xss attack). cant add it to httponly cookie cause there is no web api.
+            await LocalStorage.SetItemAsync("id", response.UserId);
+            await AuthenticationStateProvider.NotifyUserAuthenticationAsync(response.Token);
             
             error="uspjeh"; 
         }
@@ -76,9 +84,7 @@
             return;
         }
 
-       
-      
-        Nav.NavigateTo("/");
+        Nav.NavigateTo("/dashboard");
     }
     
 }

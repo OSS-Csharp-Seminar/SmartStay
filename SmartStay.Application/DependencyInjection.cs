@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +10,7 @@ using SmartStay.Application.Dto.UserDto;
 using SmartStay.Application.Interfaces;
 using SmartStay.Application.Mapper;
 using SmartStay.Application.Services;
+using SmartStay.Application.Services.Authentication;
 using SmartStay.Application.Util;
 using SmartStay.Domain.Entities;
 
@@ -16,47 +20,50 @@ public static class DependencyInjection
 {
    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
    {
-      // services.AddMediaR(cfg =>
-      //    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+       services.AddAuthentication(options =>
+          {
+             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+          })
+          .AddJwtBearer(options =>
+          {
+             // var jwtKey = configuration["Jwt:Key"] 
+             //              ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
+             //
+             // if (jwtKey.Length < 32)
+             //    throw new InvalidOperationException("JWT Key must be at least 32 characters long");
+             //
+             options.TokenValidationParameters = new TokenValidationParameters
+             {
+                //M.G:key, Issuser,audience hardcoded for now. hardcoded in JwtService as well
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer ="SmartStay" ,
+                ValidAudience ="SmartStay" ,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes("a9F3kLm2Xq7ZpR8vT1nW6cB4yH0uD5Js")),
+                ClockSkew = TimeSpan.Zero 
+             };
       
-      //M.G:no authentication for now
-      // services.AddAuthentication(options =>
-      //    {
-      //       options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-      //       options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-      //       options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-      //    })
-      //    .AddJwtBearer(options =>
-      //    {
-      //       var jwtKey = configuration["Jwt:Key"] 
-      //                    ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
-      //    
-      //       if (jwtKey.Length < 32)
-      //          throw new InvalidOperationException("JWT Key must be at least 32 characters long");
-      //
-      //       options.TokenValidationParameters = new TokenValidationParameters
-      //       {
-      //          ValidateIssuer = true,
-      //          ValidateAudience = true,
-      //          ValidateLifetime = true,
-      //          ValidateIssuerSigningKey = true,
-      //          ValidIssuer = configuration["Jwt:Issuer"],
-      //          ValidAudience = configuration["Jwt:Audience"],
-      //          IssuerSigningKey = new SymmetricSecurityKey(
-      //             Encoding.UTF8.GetBytes(jwtKey)),
-      //          ClockSkew = TimeSpan.Zero 
-      //       };
-      //
-      //    });
-      //
-      // services.AddAuthorization();
- 
-      
-      services.AddSingleton<IPasswordHasher<string>, PasswordHasherArgon2>()
-         .AddSingleton<IMapper<User, UserLoginResponseDto>, UserLoginResponseMapper>()
-         .AddSingleton<IMapper<User,UserCreationRequestDto>, UserCreationDtoMapper>()
-         .AddSingleton<JwtService>()
-         .AddScoped<IAuthenticationService, AuthenticationService>();//M.G: mora bit scoped jer ovisi o dbContextu koj je po default scoped
+          });
+
+       services.AddBlazoredLocalStorage();
+
+       services.AddSingleton<IPasswordHasher<string>, PasswordHasherArgon2>()
+          .AddSingleton<IMapper<User, UserCreationRequestDto>, UserCreationDtoMapper>()
+          .AddSingleton<JwtSecurityTokenHandler>()
+          .AddScoped<JwtService>()
+          .AddScoped<IAuthenticationService,
+             AuthenticationService>() //M.G: mora bit scoped jer ovisi o dbContextu koj je po default scoped
+          .AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>()
+          .AddScoped<ICustomAuthenticationStateProvider>(provider =>//M.G: because AuthenticationStateProvider doesn't have methods from IcustomstateProvider we cast it with this line (and we have to use him) and we have it in CustomStateProvider.
+             (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>());
+
+      services.AddAuthorization();
+      services.AddAuthorizationCore();
       
       return services;
    }

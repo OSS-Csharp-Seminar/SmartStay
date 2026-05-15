@@ -1,6 +1,10 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+ <CascadingAuthenticationState> @*M.G: without this line [Authorize] attribute doesn't work right *@
+ <Router AppAssembly="typeof(Program).Assembly"> 
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+</CascadingAuthenticationState>

@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using SmartStay.Blazor.Components;
 using SmartStay.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<SmartStayDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -1,11 +1,15 @@
 ﻿@page "/signin"
-@rendermode InteractiveServer
 @using System.Diagnostics
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application
 @using SmartStay.Application.Dto.UserDto
+@using SmartStay.Application.Interfaces
 @using SmartStay.Blazor.Components.Layout
-@layout EmptyLayout
+@layout AuthenticaitonLayout
 @inject IAuthenticationService AuthenticationService
+@inject ILocalStorageService LocalStorage
+@inject ICustomAuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Nav
 
 <PageTitle>Sign Up</PageTitle>
@@ -88,10 +92,15 @@
             );
             
             Debug.WriteLine("D-email: "+signupDto.Email);
-            await AuthenticationService.CreateUser(dto);
+            var response=await AuthenticationService.CreateUser(dto);
+            
+            await LocalStorage.SetItemAsync("id", response.UserId);
+            await AuthenticationStateProvider.NotifyUserAuthenticationAsync(response.Token);
+
+            
             message= "Account created successfully!";
             
-            Nav.NavigateTo("/");
+            Nav.NavigateTo("/dashboard");
         }
         catch (Exception e)
         {
