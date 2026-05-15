@@ -1,0 +1,112 @@
+﻿@page "/signin"
+@using System.Diagnostics
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
+@using SmartStay.Application
+@using SmartStay.Application.Dto.UserDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+@layout AuthenticaitonLayout
+@inject IAuthenticationService AuthenticationService
+@inject ILocalStorageService LocalStorage
+@inject ICustomAuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Nav
+
+<PageTitle>Sign Up</PageTitle>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>Sign Up</h1>
+</div>
+
+<EditForm Model="signupDto" OnSubmit="HandleSignup" FormName="signupForm" class="p-4 rounded-3 text-white container-md d-flex justify-content-center" style="background-color:rgb(5, 39, 103)">
+    <ValidationSummary />
+    
+    <div class="row g-3">
+        <div class="col">
+            First Name<br/>
+            <InputText type="text" class="form-control" @bind-Value="signupDto.FirstName"/>
+        </div>
+        <div class="col">
+            Last Name<br/>
+            <InputText  type="text" class="form-control" @bind-Value="signupDto.LastName"/>
+        </div>
+        <div class="col-12">
+            Email<br/>
+            <InputText type="email" class="form-control" @bind-Value="signupDto.Email"/>
+        </div>
+        <div class="col-12">
+            Password<br/>
+            <InputText type="password" class="form-control" @bind-Value="signupDto.Password"/>
+        </div>
+        <div class="col-12">
+            Confirm Password<br/>
+            <InputText type="password" class="form-control" @bind-Value="signupDto.ConfirmPassword"/>
+        </div>
+    </div>
+    <button type="submit" class="mt-3">Sign Up</button>
+</EditForm>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    Already have an account?
+    <a href="/login">
+        <button>Login</button>
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-danger">@message</div>
+}
+
+@code {
+    private SignupDto signupDto {get; set; } = new();
+
+    private class SignupDto
+    {
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string ConfirmPassword { get; set; } = "";
+    }
+
+    private string message= "";
+
+    private async Task HandleSignup()
+    {
+
+        if (signupDto.Password != signupDto.ConfirmPassword)
+        {
+            message= "Passwords do not match";
+            return;
+        }
+
+        try
+        {
+            var dto = new UserCreationRequestDto(
+                signupDto.Email,
+                signupDto.Password,
+                signupDto.FirstName,
+                signupDto.LastName,
+                    null
+            );
+            
+            Debug.WriteLine("D-email: "+signupDto.Email);
+            var response=await AuthenticationService.CreateUser(dto);
+            
+            await LocalStorage.SetItemAsync("id", response.UserId);
+            await AuthenticationStateProvider.NotifyUserAuthenticationAsync(response.Token);
+
+            
+            message= "Account created successfully!";
+            
+            Nav.NavigateTo("/dashboard");
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine("Error: " + e.Message);
+            message = "Registration failed. Please try again.";
+        }
+
+    }
+}

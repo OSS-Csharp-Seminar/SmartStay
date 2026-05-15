@@ -4,5 +4,7 @@ namespace SmartStay.Application.Interfaces;
 
 public interface IMapper<TSource,TDestination>
 {
-    UserLoginResponseDto ToDto(TSource source);
+    TDestination ToDto(TSource source);
+    
+    TSource ToSource(TDestination destination);
 }

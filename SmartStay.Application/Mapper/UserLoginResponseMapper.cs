@@ -1,13 +1,19 @@
-﻿using SmartStay.Application.Dto.UserDto;
-using SmartStay.Application.Interfaces;
-using SmartStay.Domain.Entities;
-
-namespace SmartStay.Application.Mapper;
-
-public class UserLoginResponseMapper : IMapper<User,UserLoginResponseDto>
-{
-   public UserLoginResponseDto ToDto(User user)
-   {
-      return new UserLoginResponseDto(user.Id);
-   }
-}
+﻿// using SmartStay.Application.Dto.UserDto;
+// using SmartStay.Application.Interfaces;
+// using SmartStay.Domain.Entities;
+//
+// namespace SmartStay.Application.Mapper;
+//
+//M.G: not used for now, or at all.
+// public class UserLoginResponseMapper : IMapper<User,UserLoginResponseDto>
+// {
+//    public UserLoginResponseDto ToDto(User user)
+//    {
+//       return new UserLoginResponseDto(user.Id);
+//    }
+//
+//    public User ToSource(UserLoginResponseDto destination)
+//    {
+//       throw new NotImplementedException();
+//    }
+// }

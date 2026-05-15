@@ -1,4 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using Blazored.LocalStorage
+@using SmartStay.Application.Interfaces
+@inherits LayoutComponentBase
+@inject ICustomAuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
 
 <div class="page">
     <div class="sidebar">
@@ -21,3 +26,22 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {//M.G: [Authorize] attribute is wierd (doesn't work) without httponly cookie so I made manual authentication until i find work around.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await LocalStorage.GetItemAsync<string>("token");
+            
+            if (string.IsNullOrEmpty(token))
+            {
+                Nav.NavigateTo("/login");
+                return;
+            }
+            
+            await AuthStateProvider.NotifyUserAuthenticationAsync(token);
+            StateHasChanged();
+        }
+    }
+}

@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using SmartStay.Domain.Entities;
+using SmartStay.Infrastructure.Persistance.Migrations;
 
 namespace SmartStay.Infrastructure.Persistance;
 
-public class SmartStayDbContext : DbContext
+public class SmartStayDbContext : DbContext, ISmartStayDbContext
 {
     public SmartStayDbContext(DbContextOptions<SmartStayDbContext> options) : base(options) { }
 
