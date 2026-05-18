@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartStay.Domain.Interfaces;
 using SmartStay.Infrastructure.Persistance;
 using SmartStay.Infrastructure.Persistance.Migrations;
+using SmartStay.Infrastructure.Repositories;
 
 namespace SmartStay.Infrastructure;
 
@@ -19,6 +20,8 @@ public static class DependencyInjection
 
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<IRoomRepository, RoomRepository>();
 
         return services;
     }

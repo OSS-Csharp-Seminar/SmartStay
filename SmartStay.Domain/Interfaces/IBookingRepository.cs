@@ -1,0 +1,11 @@
+using SmartStay.Domain.Entities;
+
+namespace SmartStay.Domain.Interfaces;
+
+public interface IBookingRepository : IRepository<Booking>
+{
+    Task<bool> HasOverlapAsync(Guid roomId, DateTimeOffset checkIn, DateTimeOffset checkOut, Guid? excludeBookingId = null);
+    Task<IEnumerable<Booking>> GetByUserIdAsync(Guid userId);
+    Task<Booking?> GetWithDetailsAsync(Guid id);
+    Task CancelAsync(Booking booking, CancellationLog log);
+}

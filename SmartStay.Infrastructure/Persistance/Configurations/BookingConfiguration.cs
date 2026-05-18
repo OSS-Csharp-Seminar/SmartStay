@@ -15,7 +15,6 @@ public class BookingConfiguration :  IEntityTypeConfiguration<Booking>
         builder.Property(b => b.TotalPrice)
             .HasColumnType("numeric(10,2)")
             .IsRequired();
-        
         builder.Property(b => b.Status)
             .HasConversion<string>()
             .IsRequired();
@@ -35,5 +34,7 @@ public class BookingConfiguration :  IEntityTypeConfiguration<Booking>
             .WithMany(r => r.Bookings)
             .HasForeignKey(b => b.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(b => new {b.RoomId, b.CheckinDate, b.CheckOutDate,b.Status})
+            .HasDatabaseName("IX_Booking_RoomAvailability");
     }
 }
