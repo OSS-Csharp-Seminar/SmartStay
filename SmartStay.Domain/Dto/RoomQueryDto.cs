@@ -7,7 +7,7 @@ public record RoomQueryDto(
     uint PriceLowerRange,
     uint PriceUpperRange,
     uint GuestNumber,
-    string Amenities,
+    List<string> Amenities,
     float Rating,
     DateTimeOffset FreeFrom,
     DateTimeOffset FreeTo,
