@@ -15,6 +15,8 @@ builder.Services.AddDbContext<SmartStayDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SmartStay.Blazor.Services.OllamaService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);

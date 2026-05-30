@@ -1,0 +1,90 @@
+@using SmartStay.Blazor.Services
+@inject OllamaService Ollama
+
+<div class="ai-chat-wrapper">
+    @if (_open)
+    {
+        <div class="ai-chat-window">
+            <div class="ai-chat-header">
+                <span>🤖 SmartStay AI</span>
+                <button class="ai-close-btn" @onclick="Toggle">✕</button>
+            </div>
+
+            <div class="ai-chat-messages" @ref="_msgContainer">
+                @if (!_messages.Any())
+                {
+                    <div class="ai-empty-hint">Ask me anything about SmartStay — bookings, rooms, payments, architecture...</div>
+                }
+                @foreach (var msg in _messages)
+                {
+                    <div class="ai-msg @(msg.Role == "user" ? "ai-msg-user" : "ai-msg-assistant")">
+                        <div class="ai-bubble">@msg.Content</div>
+                    </div>
+                }
+                @if (_loading)
+                {
+                    <div class="ai-msg ai-msg-assistant">
+                        <div class="ai-bubble ai-typing">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="ai-chat-input">
+                <input @bind="_input"
+                       @bind:event="oninput"
+                       @onkeydown="OnKeyDown"
+                       placeholder="Ask something..."
+                       disabled="@_loading" />
+                <button @onclick="Send" disabled="@(_loading || string.IsNullOrWhiteSpace(_input))">Send</button>
+            </div>
+        </div>
+    }
+
+    <button class="ai-toggle-btn" @onclick="Toggle" title="SmartStay AI Assistant">
+        🤖
+    </button>
+</div>
+
+@code {
+    private bool _open;
+    private bool _loading;
+    private string _input = "";
+    private List<OllamaMessage> _messages = new();
+    private ElementReference _msgContainer;
+
+    private void Toggle() => _open = !_open;
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_input) && !_loading)
+            await Send();
+    }
+
+    private async Task Send()
+    {
+        var text = _input.Trim();
+        if (string.IsNullOrEmpty(text)) return;
+
+        _input = "";
+        _messages.Add(new OllamaMessage("user", text));
+        _loading = true;
+        StateHasChanged();
+
+        try
+        {
+            var reply = await Ollama.ChatAsync(_messages);
+            _messages.Add(new OllamaMessage("assistant", reply));
+        }
+        catch (Exception ex)
+        {
+            _messages.Add(new OllamaMessage("assistant", $"⚠️ Could not reach Ollama: {ex.Message}"));
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+}
