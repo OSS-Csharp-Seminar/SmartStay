@@ -17,6 +17,7 @@ public class SmartStayDbContext : DbContext, ISmartStayDbContext
     public DbSet<CancellationLog> CancellationLogs => Set<CancellationLog>();
     public DbSet<Payment> Payments => Set<Payment>();
 
+    public DbSet<Location> Locations => Set<Location>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

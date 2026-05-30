@@ -1,0 +1,142 @@
+@page "/rooms/{RoomId:guid}"
+
+@using SmartStay.Application.Dto
+@using SmartStay.Application.Dto.RoomDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+
+@layout MainLayout
+@inject IRoomService RoomService
+@inject IReviewService ReviewService
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>@room?.Name</h1>
+    <p class="text-light">
+        @room?.Location.City, @room?.Location.Country
+    </p>
+</div>
+
+<div class="container-md mt-4">
+    <div class="row g-4">
+        
+        <div class="col-lg-8">
+            @* <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.1); border: none;"> *@
+            @*     <img src="@(room?.MainImageUrl ?? "/images/room-placeholder.jpg")"  *@
+            @*          class="card-img-top"  *@
+            @*          alt="@room?.Name" *@
+            @*          style="height: 450px; object-fit: cover; border-radius: 8px;"> *@
+            @* </div> *@
+
+            <div class="card p-4 mb-4" style="background-color: rgba(255, 255, 255, 0.1);">
+                <h4 class="mb-3">About This Room</h4>
+                <p class="text-dark">@room?.Description</p>
+            </div>
+
+            <div class="card p-4 mb-4" style="background-color: rgba(255, 255, 255, 0.1);">
+                <h4 class="mb-3">Amenities</h4>
+                <div class="row g-3">
+                    @if (room?.Amenities != null)
+                    {
+                        @foreach (var amenity in room.Amenities)
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-success">✔</span>
+                                    <span>@amenity</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="background-color: rgba(255, 255, 255, 0.1); top: 20px;">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h3 class="mb-1">@room?.PricePerNight <small>$ / night</small></h3>
+                        <div class="text-warning">
+                            Rating (@room?.AverageRating)
+                        </div>
+                    </div>
+
+                    @* <div class="mb-3"> *@
+                    @*     <label class="form-label">Check-in Date</label> *@
+                    @*     <InputDate class="form-control" @bind-Value="bookingDto.CheckInDate" /> *@
+                    @* </div> *@
+                    @* *@
+                    @* <div class="mb-3"> *@
+                    @*     <label class="form-label">Check-out Date</label> *@
+                    @*     <InputDate class="form-control" @bind-Value="bookingDto.CheckOutDate" /> *@
+                    @* </div> *@
+                    @* *@
+                    @* <div class="mb-4"> *@
+                    @*     <label class="form-label">Guests</label> *@
+                    @*     <InputNumber class="form-control" @bind-Value="bookingDto.GuestCount" min="1" max="@room?.Capacity" /> *@
+                    @* </div> *@
+                    @* *@
+                    @* @if (totalPrice > 0) *@
+                    @* { *@
+                    @*     <div class="border-top border-bottom py-3 my-3"> *@
+                    @*         <div class="d-flex justify-content-between text-light"> *@
+                    @*             <span>Total for @nights nights:</span> *@
+                    @*             <strong>@totalPrice $</strong> *@
+                    @*         </div> *@
+                    @*     </div> *@
+                    @* } *@
+
+                    @* <button class="btn btn-success btn-lg w-100" @onclick="BookRoom"> *@
+                    @*     Book Now *@
+                    @* </button> *@
+
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-md mt-5">
+    <div class="card p-4" style="background-color: rgba(255, 255, 255, 0.1);">
+        <h4 class="mb-4">Guest Reviews</h4>
+        @if (reviews != null && reviews.Any())
+        {
+            @foreach (var review in reviews)
+            {
+                <div class="border-bottom border-light border-opacity-25 pb-4 mb-4">
+                    <div class="d-flex justify-content-between">
+                        <strong>@review.UserName</strong>
+                        <span class="text-warning"><b>Rating:</b> @review.Rating★</span>
+                    </div>
+                    <p class="mt-2 text-dark">@review.Comment</p>
+                <small class="text-light-emphasis"><b>On day:</b> @review.DateCreated.LocalDateTime</small>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-dark">No reviews yet. Be the first to review this room!</p>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-4 container-md">@message</div>
+}
+
+@code {
+    
+    [Parameter] public Guid RoomId { get; set; }
+    private RoomResponseDto room;
+    private IEnumerable<ReviewResponseDto> reviews;
+
+    protected async override Task OnInitializedAsync()
+    {
+        reviews = await ReviewService.GetAllByRoomIdAsync(RoomId);
+        room = await RoomService.GetRoomById(RoomId);
+    }
+
+    private string message = null;
+}

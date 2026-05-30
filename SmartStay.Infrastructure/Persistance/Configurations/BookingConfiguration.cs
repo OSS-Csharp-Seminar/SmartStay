@@ -12,6 +12,8 @@ public class BookingConfiguration :  IEntityTypeConfiguration<Booking>
         
         builder.HasKey(b => b.Id);
         
+        builder.Property(r => r.Id)
+            .ValueGeneratedOnAdd();
         builder.Property(b => b.TotalPrice)
             .HasColumnType("numeric(10,2)")
             .IsRequired();
