@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SmartStay.Application.Dto;
+using SmartStay.Application.Dto.BookingDto;
 using SmartStay.Application.Dto.RoomDto;
 using SmartStay.Application.Dto.UserDto;
 using SmartStay.Application.Interfaces;
@@ -59,6 +60,7 @@ public static class DependencyInjection
           .AddSingleton<IMapper<User, UserCreationRequestDto>, UserCreationDtoMapper>()
           .AddSingleton<IMapper<Room,RoomResponseDto>,RoomMapper>()
           .AddSingleton<IMapper<Review,ReviewResponseDto>,ReviewMapper>()
+          .AddSingleton<IMapper<Booking,RoomAvailabilityDto>,RoomAvailabilityMapper>()
           .AddSingleton<JwtSecurityTokenHandler>()
           .AddScoped<JwtService>()
           .AddScoped<IAuthenticationService,

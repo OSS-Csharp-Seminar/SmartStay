@@ -8,4 +8,6 @@ public interface IBookingService
     Task<BookingResponseDto> GetBookingAsync(Guid id);
     Task<IEnumerable<BookingResponseDto>> GetUserBookingsAsync(Guid userId);
     Task<BookingResponseDto> CancelBookingAsync(Guid id, CancelBookingRequestDto dto);
+    Task<IEnumerable<RoomAvailabilityDto>>  GetOccupiedRooms(Guid roomId);
+
 }

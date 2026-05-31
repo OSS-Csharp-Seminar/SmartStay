@@ -11,11 +11,13 @@ public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IMapper<Booking,RoomAvailabilityDto> _mapper;
 
-    public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository)
+    public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository, IMapper<Booking,RoomAvailabilityDto> mapper)
     {
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
+        _mapper = mapper;
     }
 
     public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingRequestDto dto)
@@ -81,6 +83,7 @@ public class BookingService : IBookingService
             Reason = dto.Reason
         };
 
+        booking.Status = BookingStatus.Cancelled;
         await _bookingRepository.CancelAsync(booking, log);
 
         return ToDto(booking, booking.Room.Name);
@@ -88,7 +91,7 @@ public class BookingService : IBookingService
 
     private static void ValidateDates(DateTimeOffset checkIn, DateTimeOffset checkOut)
     {
-        if (checkIn < DateTimeOffset.UtcNow.Date)
+        if (checkIn < DateTimeOffset.UtcNow)
             throw new InvalidBookingDatesException("Check-in date cannot be in the past.");
 
         if (checkOut <= checkIn)
@@ -96,6 +99,13 @@ public class BookingService : IBookingService
 
         if ((checkOut - checkIn).TotalDays < 1)
             throw new InvalidBookingDatesException("Minimum stay is 1 night.");
+    }
+
+    public async Task<IEnumerable<RoomAvailabilityDto>> GetOccupiedRooms(Guid roomId)
+    {
+        var bookings= await _bookingRepository.GetRoomOccupancyByRoomIdAsync(roomId);
+
+        return bookings.Select(b => _mapper.ToDto(b));
     }
 
     private static BookingResponseDto ToDto(Booking b, string roomName) => new(

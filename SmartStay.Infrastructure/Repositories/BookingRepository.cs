@@ -32,6 +32,14 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Booking>> GetRoomOccupancyByRoomIdAsync(Guid roomId)
+    {
+       return await _dbSet.Where(b => b.RoomId == roomId 
+                                      && ( b.Status==BookingStatus.Confirmed
+                                      || b.Status==BookingStatus.CheckedIn
+                                      )).ToListAsync(); 
+    }
+
     public async Task<Booking?> GetWithDetailsAsync(Guid id)
     {
         return await _dbContext.Bookings
