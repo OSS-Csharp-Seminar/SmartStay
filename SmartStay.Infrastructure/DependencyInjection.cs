@@ -22,7 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>()
         .AddScoped<IBookingRepository, BookingRepository>()
         .AddScoped<IReviewRepository, ReviewRepository>()
-        .AddScoped<IRoomRepository, RoomRepository>();
+        .AddScoped<IRoomRepository, RoomRepository>()
+        .AddScoped<IPaymentRepository, PaymentRepository>();
         
 
         return services;

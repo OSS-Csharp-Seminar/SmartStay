@@ -38,12 +38,13 @@ public class BookingService : IBookingService
             Id = Guid.NewGuid(),
             UserId = dto.UserId,
             RoomId = dto.RoomId,
-            CheckinDate = dto.CheckIn,
+            CheckInDate = dto.CheckIn,
             CheckOutDate = dto.CheckOut,
             TotalPrice = (decimal)room.PricePerNight * nights,
-            Status = BookingStatus.Confirmed
+            Status = BookingStatus.Confirmed,
         };
 
+        //M.G: Payment creation repo
         await _bookingRepository.AddAsync(booking);
 
         return ToDto(booking, room.Name);
@@ -79,7 +80,7 @@ public class BookingService : IBookingService
             Id = Guid.NewGuid(),
             BookingId = booking.Id,
             CancelledAt = DateTimeOffset.UtcNow,
-            DaysBeforeCheckin = Math.Max(0, (int)(booking.CheckinDate - DateTimeOffset.UtcNow).TotalDays),
+            DaysBeforeCheckin = Math.Max(0, (int)(booking.CheckInDate - DateTimeOffset.UtcNow).TotalDays),
             Reason = dto.Reason
         };
 
@@ -113,9 +114,9 @@ public class BookingService : IBookingService
         b.UserId,
         b.RoomId,
         roomName,
-        b.CheckinDate,
+        b.CheckInDate,
         b.CheckOutDate,
-        (int)(b.CheckOutDate - b.CheckinDate).TotalDays,
+        (int)(b.CheckOutDate - b.CheckInDate).TotalDays,
         b.TotalPrice,
         b.Status,
         b.CreatedAt

@@ -99,6 +99,7 @@
                                     <button class="btn btn-sm w-100 p-1 position-relative
                                                        @(_markedDates.Contains(cell.Date) ? "btn-primary" : "btn-light")
                                                        @(_occupiedDates.Contains(cell.Date) ? "btn-outline-danger" : "btn-light")
+                                                       @(DateOnly.FromDateTime(DateTime.Today) > cell.Date ? "btn-outline-danger" : "btn-light")
                                                        @(cell.IsToday && !_markedDates.Contains(cell.Date) ? "border border-secondary" : "")
                                                        @(!cell.IsCurrentMonth ? "opacity-25" : "")"
                                             @onclick="() => ToggleMark(cell.Date)"
@@ -114,27 +115,59 @@
                                 </div>
                             }
                         </div>
+                        
+                        
+                        <div class="mt-3 px-3 pb-3">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-3">Summary</h6>
 
-                        @* M.G: marked days shown *@
-                        @if (_markedDates.Any())
-                        {
-                            <div class="mt-3 pt-3 border-top">
-                                <p class="text-muted small mb-2">Marked (@_markedDates.Count)</p>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach (var d in _markedDates.OrderBy(x => x))
-                                    {
-                                        <span class="badge rounded-pill bg-primary d-flex align-items-center gap-1 px-3 py-2">
-                                            @d.ToString("MMM d, yyyy")
-                                            <button type="button"
-                                                    class="btn-close btn-close-white ms-1"
-                                                    style="font-size:9px;"
-                                                    @onclick="() => _markedDates.Remove(d)"
-                                                    aria-label="Remove"></button>
-                                        </span>
-                                    }
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Price per night</span>
+                                        <strong>@_room.PricePerNight$</strong>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Nights</span>
+                                        <strong>@(_markedDates.Count()-1)</strong>
+                                    </div>
+
+                                    <hr />
+
+                                    <div class="d-flex justify-content-between fs-5">
+                                        <span>Total</span>
+                                        <strong class="text-success">@_totalPrice$</strong>
+                                    </div>
                                 </div>
                             </div>
-                        }
+
+                            <button class="btn btn-success w-100 mt-3">
+                               Book now 
+                            </button>
+                        </div>
+                        
+                        
+                        @* M.G: marked days shown, might just remove this and just add price.*@
+                        
+                        @* @if (_markedDates.Any()) *@
+                        @* { *@
+                        @*     <div class="mt-3 pt-3 border-top"> *@
+                        @*         <p class="text-muted small mb-2">Marked (@_markedDates.Count)</p> *@
+                        @*         <div class="d-flex flex-wrap gap-2"> *@
+                        @*             @foreach (var d in _markedDates.OrderBy(x => x)) *@
+                        @*             { *@
+                        @*                 <span class="badge rounded-pill bg-primary d-flex align-items-center gap-1 px-3 py-2"> *@
+                        @*                     @d.ToString("MMM d, yyyy") *@
+                        @*                     <button type="button" *@
+                        @*                             class="btn-close btn-close-white ms-1" *@
+                        @*                             style="font-size:9px;" *@
+                        @*                             @onclick="() => _markedDates.Remove(d)" *@
+                        @*                             aria-label="Remove"></button> *@
+                        @*                 </span> *@
+                        @*             } *@
+                        @*         </div> *@
+                        @*     </div> *@
+                        @* } *@
                     </div>
                     //calendar     
                         
@@ -222,6 +255,7 @@
     private HashSet<DateOnly> _markedDates = new();
     private List<DateOnly>? _occupiedDates;
     private string _message = null;
+    private float _totalPrice = 0;
     
     
     protected async override Task OnInitializedAsync()
@@ -262,8 +296,47 @@
 
     void ToggleMark(DateOnly date)
     {
-        if (!_markedDates.Remove(date) && !_occupiedDates.Contains(date))
+        
+        if (_markedDates.Count > 2)//M.G: third click on date resets choosen date list for easier date picking.
+        {
+            _markedDates.Clear();
+            _totalPrice = 0;
+        }
+        
+        
+        if (!_markedDates.Remove(date)
+            && !_occupiedDates.Contains(date) 
+            && date > DateOnly.FromDateTime(DateTime.Today))
+            
             _markedDates.Add(date);
+        
+
+        if (_markedDates.Count() > 1)//M.G: adds missing dates between smallest and biggest choosen date
+        {
+            var smallestDate = _markedDates.Min();
+            
+            var BiggestDate = _markedDates.Max();
+
+            int i = 1;
+
+            while(true)
+            {
+                if (smallestDate.AddDays(i) == BiggestDate)
+                     break;
+
+                _markedDates.Add(smallestDate.AddDays(i));
+                i++;
+            }
+            
+
+            if (_markedDates.Any(d => _occupiedDates.Contains(d)))
+            {
+                _markedDates.Clear();
+                _message = "Date you choose is already occupied!";
+            }
+            
+            _totalPrice = ((_markedDates.Count()-1) * _room.PricePerNight);
+        }
     }
 
     List<CalCell> GetCalendarCells()

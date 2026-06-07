@@ -22,7 +22,7 @@ public class BookingConfiguration :  IEntityTypeConfiguration<Booking>
             .IsRequired();
         builder.Property(b => b.CreatedAt)
             .HasDefaultValueSql("now()");
-        builder.Property(b => b.CheckinDate)
+        builder.Property(b => b.CheckInDate)
             .HasColumnType("datetime")
             .IsRequired();
         builder.Property(b => b.CheckOutDate)
@@ -36,7 +36,7 @@ public class BookingConfiguration :  IEntityTypeConfiguration<Booking>
             .WithMany(r => r.Bookings)
             .HasForeignKey(b => b.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(b => new {b.RoomId, b.CheckinDate, b.CheckOutDate,b.Status})
+        builder.HasIndex(b => new {b.RoomId, CheckinDate = b.CheckInDate, b.CheckOutDate,b.Status})
             .HasDatabaseName("IX_Booking_RoomAvailability");
     }
 }

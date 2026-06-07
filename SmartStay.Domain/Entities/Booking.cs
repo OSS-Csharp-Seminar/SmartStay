@@ -15,7 +15,7 @@ namespace SmartStay.Domain.Entities
         public Room Room { get; set; } = null!;
         
         [Column(TypeName = "timestamptz")]
-        public DateTimeOffset CheckinDate { get; set; }         
+        public DateTimeOffset CheckInDate { get; set; }         
         
         [Column(TypeName = "timestamptz")]
         public DateTimeOffset CheckOutDate {get; set;}

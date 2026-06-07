@@ -18,7 +18,7 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
                 b.RoomId == roomId &&
                 b.Status != BookingStatus.Cancelled &&
                 (excludeBookingId == null || b.Id != excludeBookingId) &&
-                b.CheckinDate < checkOut &&
+                b.CheckInDate < checkOut &&
                 b.CheckOutDate > checkIn)
             .AnyAsync();
     }
