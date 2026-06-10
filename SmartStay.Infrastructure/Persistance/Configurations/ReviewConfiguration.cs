@@ -11,7 +11,9 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
         builder.ToTable("Reviews");
         
         builder.HasKey(r => r.Id);
-
+        
+        builder.Property(r => r.Id)
+            .ValueGeneratedOnAdd();
         builder.Property(r => r.Rating)
             .IsRequired();
         builder.Property(r => r.Comment)
@@ -19,6 +21,7 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
             .HasMaxLength(2000);
         builder.Property(r => r.CreatedAt)
             .HasDefaultValueSql("now()");
+
         
         builder.HasIndex(r => new {r.UserId, r.RoomId})
             .IsUnique();

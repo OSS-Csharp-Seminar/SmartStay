@@ -10,7 +10,8 @@ public class CancellationLogConfiguration : IEntityTypeConfiguration<Cancellatio
     {
         builder.ToTable("CancellationLog");
         builder.HasKey(r => r.Id);  
-        
+        builder.Property(r => r.Id)
+            .ValueGeneratedOnAdd();
         builder.Property(c => c.CancelledAt)
             .HasDefaultValueSql("now()");
 

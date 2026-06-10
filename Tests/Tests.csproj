@@ -25,4 +25,8 @@
       <ProjectReference Include="..\SmartStay.Application\SmartStay.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="MockTests\" />
+    </ItemGroup>
+
 </Project>

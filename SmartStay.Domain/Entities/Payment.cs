@@ -12,7 +12,7 @@ namespace SmartStay.Domain.Entities
         public Booking Booking { get; set; } = null!;
         
         public decimal Amount { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         [Column(TypeName = "timestamptz")]
         public DateTimeOffset? PaidAt { get; set; }

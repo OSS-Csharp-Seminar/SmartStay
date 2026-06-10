@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartStay.Domain.Interfaces;
 using SmartStay.Infrastructure.Persistance;
 using SmartStay.Infrastructure.Persistance.Migrations;
+using SmartStay.Infrastructure.Repositories;
 
 namespace SmartStay.Infrastructure;
 
@@ -18,7 +19,14 @@ public static class DependencyInjection
     options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
 
 
-        services.AddScoped<IUserRepository, UserRepository>();
+     services.AddScoped<IUserRepository, UserRepository>()
+         .AddScoped<IBookingRepository, BookingRepository>()
+         .AddScoped<IReviewRepository, ReviewRepository>()
+         .AddScoped<IRoomRepository, RoomRepository>()
+         .AddScoped<IPaymentRepository, PaymentRepository>()
+         .AddScoped<IAmenitiesRepository, AmenitiesRepository>()
+         .AddScoped<ICancellationLogRepository, CancellationLogRepository>();
+        
 
         return services;
     }

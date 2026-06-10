@@ -1,0 +1,212 @@
+@page "/rooms"
+@using SmartStay.Application.Dto.RoomDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Domain.Entities
+@using SmartStay.Blazor.Components.Layout
+@using SmartStay.Domain.Dto
+@layout MainLayout
+@inject IRoomService RoomService
+@inject NavigationManager Nav
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>Search Rooms</h1>
+</div>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label for="city">City</label>
+            <InputText id="city" class="form-control" @bind-value="searchDto.City"/>
+        </div>
+        <div class="col-md-6">
+            <label for="name">Room Name</label>
+            <InputText id="name" class="form-control" @bind-value="searchDto.Name"/>
+        </div>
+        <div class="col-md-6">
+            <label for="guestNumber">Guests</label>
+            <InputText id="guestNumber" type="number" class="form-control" @bind-value="searchDto.GuestNumber"/>
+        </div>
+        <div class="col-md-6">
+            <label for="priceLowerRange">Min Price</label>
+            <InputText id="priceLowerRange" type="number" class="form-control" @bind-value="searchDto.PriceLowerRange"/>
+        </div>
+        <div class="col-md-6">
+            <label for="priceUpperRange">Max Price</label>
+            <InputText id="priceUpperRange" type="number" class="form-control" @bind-value="searchDto.PriceUpperRange"/>
+        </div>
+        <div class="col-md-6">
+            <label for="rating">Min Rating</label>
+            <InputText id="rating" type="number" class="form-control" @bind-value="searchDto.Rating"/>
+        </div>
+        <div class="col-md-6">
+            <label for="freeFrom">Check-in Date</label>
+            <InputText id="freeFrom" type="date" class="form-control" @bind-value="searchDto.FreeFrom"/>
+        </div>
+        <div class="col-md-6">
+            <label for="freeTo">Check-out Date</label>
+            <InputText id="freeTo" type="date" class="form-control" @bind-value="searchDto.FreeTo"/>
+        </div>
+        <div class="col-md-6">
+            <label for="sortBy">Sort By</label>
+            <select id="sortBy" class="form-control" @bind="searchDto.SortBy">
+                <option value="name">Name</option>
+                <option value="price">Price</option>
+                <option value="rating">Rating</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="isDescending">Sort Order</label>
+            <select id="isDescending" class="form-control" @bind="searchDto.IsDescending">
+                <option value="false">Ascending</option>
+                <option value="true">Descending</option>
+            </select>
+        </div>
+        @* <div class="col-md-6"> *@
+        @*     <label for="pageSize">Results Per Page</label> *@
+        @*     <InputText id="pageSize" type="number" class="form-control" @bind-value="searchDto.PageSize"/> *@
+        @* </div> *@
+        @* <div class="col-md-6"> *@
+        @*     <label for="page">Page</label> *@
+        @*     <InputText id="page" type="number" class="form-control" @bind-value="searchDto.Page"/> *@
+        @* </div> *@
+        <div class="col-12">
+            <button class="btn btn-primary" @onclick="SearchRooms">Search Rooms</button>
+        </div>
+    </div>
+</div>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
+    @if (rooms != null)
+    {
+        @if (rooms.Any())
+        {
+            <div class="row">
+                @foreach (var room in rooms)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card" style="background-color: rgba(255, 255, 255, 0.1);">
+                            <div class="card-body">
+                                <h5 class="card-title">@room.Name</h5>
+                                <p class="card-text">
+                                    <strong>Price:</strong> @room.PricePerNight $<br/>
+                                    <strong>Capacity:</strong> @room.Capacity<br/>
+                                    <strong>Rating:</strong> @room.AverageRating<br/>
+                                    <strong>Location:</strong> @room.Location.City, @room.Location.Country<br/>
+                                    @if (room.Amenities.Any())
+                                    {
+                                        <strong>Amenities: </strong>
+                                    }
+                                    @for (int i = 0; i < 3; i++)
+                                    {
+                                        if (i >= room.Amenities.Count())
+                                        {
+                                            break;
+                                        }
+
+                                        <spam>@room.Amenities.ElementAt(i) </spam>
+                                        if (i != room.Amenities.Count() - 1)
+                                        {
+                                            <spam>, </spam>
+                                        }
+                                    }
+                                    @if (room.Amenities.Count() >= 3)
+                                    {
+                                        <spam> ...</spam>
+                                    }
+                                </p>
+                                <button class="btn btn-success" @onclick="() => NavigateToRoom(room.Id)">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        
+    }
+        else
+        {
+            <p>No rooms found matching your criteria.</p>
+        }
+    }
+    else
+    {
+        <p>Enter search criteria and click Search.</p>
+    }
+    
+</div>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert"  role="alert">
+        @message
+    </div>
+}
+
+@code {
+    
+   public class Qry
+   {
+       public string Page { get; set; } = "1";
+        public string PageSize{get; set;}="10";
+        public string? Name { get; set; } 
+        public string? PriceLowerRange{get; set;}
+        public string? PriceUpperRange{get; set;}
+        public string? GuestNumber{get; set;}
+        public List<string>? Amenities{get; set;}
+        public string? Rating{get; set;}
+        public string? FreeFrom{get; set;}
+        public string? FreeTo{get; set;}
+        public string? City {get; set;}
+        public string? SortBy { get; set; } = "Name";
+        public string? IsDescending { get; set; } = "true";
+   };
+
+    
+    private Qry searchDto = new();
+    private IEnumerable<RoomResponseDto>? rooms;
+    private string message = null;
+
+
+    private async Task SearchRooms()
+    {
+        try
+        {
+            if(searchDto is { PriceLowerRange: not null, PriceUpperRange: not null })
+                if (float.Parse(searchDto.PriceLowerRange) < 0 
+                    || float.Parse(searchDto.PriceLowerRange) > float.Parse(searchDto.PriceUpperRange)
+                    || float.Parse(searchDto.PriceUpperRange) < 0)
+                {
+                    throw new Exception("Invalid price range");
+                }
+
+
+            var queri = new RoomQueryDto(
+                uint.Parse(searchDto.Page),
+                uint.Parse(searchDto.PageSize),
+                searchDto.Name,
+                string.IsNullOrEmpty(searchDto.PriceLowerRange) ? null : float.Parse(searchDto.PriceLowerRange),
+                string.IsNullOrEmpty(searchDto.PriceUpperRange) ? null : float.Parse(searchDto.PriceUpperRange),
+                string.IsNullOrEmpty(searchDto.GuestNumber) ? null : uint.Parse(searchDto.GuestNumber) ,
+                    searchDto.Amenities,
+                    string.IsNullOrEmpty(searchDto.Rating) ? null : float.Parse(searchDto.Rating) ,
+                    string.IsNullOrEmpty(searchDto.FreeFrom) ? null : DateTimeOffset.Parse(searchDto.FreeFrom),
+                    string.IsNullOrEmpty(searchDto.FreeTo) ? null : DateTimeOffset.Parse(searchDto.FreeTo) ,
+                    searchDto.City, 
+                    searchDto.SortBy,
+                    bool.Parse(searchDto.IsDescending)
+            );
+
+
+            rooms = await RoomService.GetRooms(queri);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching rooms: {ex.Message}");
+            message = "error with input";
+        }
+    }
+
+    private void NavigateToRoom(Guid RoomId)
+    {
+        Nav.NavigateTo($"/rooms/{RoomId}");
+    }
+}

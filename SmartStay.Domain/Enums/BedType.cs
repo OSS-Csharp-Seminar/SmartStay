@@ -4,8 +4,10 @@ namespace SmartStay.Domain.Enums
 {
     public enum BedType
     {
+        King,
         Queen,
-        single,
-        bunk
+        Single,
+        Double,
+        Bunk
     }
 }

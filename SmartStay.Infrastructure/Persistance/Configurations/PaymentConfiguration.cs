@@ -10,7 +10,8 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
     {
         builder.ToTable("Payments");
         builder.HasKey(p => p.Id);
-        
+        builder.Property(r => r.Id)
+            .ValueGeneratedOnAdd();
         builder.Property(p => p.Amount)
             .HasColumnType("numeric(10,2)")
             .IsRequired();

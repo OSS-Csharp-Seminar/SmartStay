@@ -18,9 +18,11 @@ namespace SmartStay.Domain.Entities
         [Column(TypeName = "timestamptz")]
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         
+        public Guid LocationId { get; set; }
+        public Location Location { get; set; } = null!;
+        
         public ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
-    
 }

@@ -12,6 +12,7 @@
 *.env
 .idea
 **/.idea/
+AGENTS.md
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
