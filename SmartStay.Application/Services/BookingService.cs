@@ -1,3 +1,4 @@
+using System.Transactions;
 using SmartStay.Application.Dto.BookingDto;
 using SmartStay.Application.Exceptions.BookingExceptions;
 using SmartStay.Application.Interfaces;
@@ -13,13 +14,19 @@ public class BookingService : IBookingService
     private readonly IRoomRepository _roomRepository;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IMapper<Booking,RoomAvailabilityDto> _mapper;
+    private readonly ITransactionSecurity _transactionSecurity;
 
-    public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository, IPaymentRepository paymentRepository, IMapper<Booking,RoomAvailabilityDto> mapper)
+    public BookingService(IBookingRepository bookingRepository,
+        IRoomRepository roomRepository,
+        IPaymentRepository paymentRepository,
+        IMapper<Booking,RoomAvailabilityDto> mapper
+        , ITransactionSecurity transactionSecurity)
     {
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
         _paymentRepository = paymentRepository;
         _mapper = mapper;
+        _transactionSecurity=transactionSecurity;
     }
 
     public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingRequestDto dto)
@@ -51,17 +58,22 @@ public class BookingService : IBookingService
             TotalPrice = totalPrice,
             Status = BookingStatus.Confirmed,
         };
-        
-        
-        //M.G: add rollback in case failure!
+
+
+        await _transactionSecurity.BeginTransactionAsync();
         try
         {
             await _bookingRepository.AddAsync(booking);
             await _paymentRepository.AddAsync(payment);
+
+            await _transactionSecurity.SaveChangesAsync();
+            await _transactionSecurity.CommitAsync();
         }
         catch
         {
-            
+            await _transactionSecurity.RollbackAsync();
+            Console.WriteLine("Error: error with booking creation");
+            throw new TransactionAbortedException("error with booking creation");
         }
 
         return ToDto(booking, room.Name);

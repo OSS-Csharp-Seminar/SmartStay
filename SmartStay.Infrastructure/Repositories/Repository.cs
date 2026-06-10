@@ -38,4 +38,22 @@ public class Repository<T>: IRepository<T> where T: class
        _dbSet.Update(entity);
        await _dbContext.SaveChangesAsync();
    }
+   
+   
+   
+   public async Task<T?> AddWithoutSavingAsync(T entity)
+   {
+       await _dbSet.AddAsync(entity);
+       return entity;
+   }
+
+   public void UpdateWithoutSaving(T entity)
+   {
+       _dbSet.Update(entity);
+   }
+
+   public void DeleteWithoutSaving(T entity)
+   {
+       _dbSet.Remove(entity);
+   }
 }
