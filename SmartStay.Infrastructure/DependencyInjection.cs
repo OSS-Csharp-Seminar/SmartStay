@@ -5,6 +5,7 @@ using SmartStay.Domain.Interfaces;
 using SmartStay.Infrastructure.Persistance;
 using SmartStay.Infrastructure.Persistance.Migrations;
 using SmartStay.Infrastructure.Repositories;
+using SmartStay.Infrastructure.Services;
 
 namespace SmartStay.Infrastructure;
 
@@ -26,7 +27,7 @@ public static class DependencyInjection
          .AddScoped<IPaymentRepository, PaymentRepository>()
          .AddScoped<IAmenitiesRepository, AmenitiesRepository>()
          .AddScoped<ICancellationLogRepository, CancellationLogRepository>()
-         .AddScoped<ITransactionSecurity, ITransactionSecurity>(); 
+         .AddScoped<ITransactionSecurity, TransactionSecurity>(); 
 
         return services;
     }
