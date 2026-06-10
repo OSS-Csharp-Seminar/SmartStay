@@ -8,7 +8,7 @@ public class RoomAvailabilityMapper : IMapper<Booking,RoomAvailabilityDto>
 {
     public RoomAvailabilityDto ToDto(Booking source)
     {
-        return new RoomAvailabilityDto(source.CheckInDate, source.CheckOutDate);
+        return new RoomAvailabilityDto(source.CheckinDate, source.CheckOutDate);
     }
 
     public Booking ToSource(RoomAvailabilityDto destination)

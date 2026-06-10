@@ -11,12 +11,14 @@ public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IPaymentRepository _paymentRepository;
     private readonly IMapper<Booking,RoomAvailabilityDto> _mapper;
 
-    public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository, IMapper<Booking,RoomAvailabilityDto> mapper)
+    public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository, IPaymentRepository paymentRepository, IMapper<Booking,RoomAvailabilityDto> mapper)
     {
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
+        _paymentRepository = paymentRepository;
         _mapper = mapper;
     }
 
@@ -33,19 +35,34 @@ public class BookingService : IBookingService
 
         int nights = (int)(dto.CheckOut - dto.CheckIn).TotalDays;
 
+
+        var bookingId = Guid.NewGuid();
+        var totalPrice = (decimal)room.PricePerNight * nights;
+
+        var payment = new Payment{BookingId = bookingId,Amount = totalPrice,PaymentStatus=PaymentStatus.Pending};
+
         var booking = new Booking
         {
-            Id = Guid.NewGuid(),
+            Id = bookingId,
             UserId = dto.UserId,
             RoomId = dto.RoomId,
-            CheckInDate = dto.CheckIn,
+            CheckinDate = dto.CheckIn,
             CheckOutDate = dto.CheckOut,
-            TotalPrice = (decimal)room.PricePerNight * nights,
+            TotalPrice = totalPrice,
             Status = BookingStatus.Confirmed,
         };
-
-        //M.G: Payment creation repo
-        await _bookingRepository.AddAsync(booking);
+        
+        
+        //M.G: add rollback in case failure!
+        try
+        {
+            await _bookingRepository.AddAsync(booking);
+            await _paymentRepository.AddAsync(payment);
+        }
+        catch
+        {
+            
+        }
 
         return ToDto(booking, room.Name);
     }
@@ -80,7 +97,7 @@ public class BookingService : IBookingService
             Id = Guid.NewGuid(),
             BookingId = booking.Id,
             CancelledAt = DateTimeOffset.UtcNow,
-            DaysBeforeCheckin = Math.Max(0, (int)(booking.CheckInDate - DateTimeOffset.UtcNow).TotalDays),
+            DaysBeforeCheckin = Math.Max(0, (int)(booking.CheckinDate - DateTimeOffset.UtcNow).TotalDays),
             Reason = dto.Reason
         };
 
@@ -114,9 +131,9 @@ public class BookingService : IBookingService
         b.UserId,
         b.RoomId,
         roomName,
-        b.CheckInDate,
+        b.CheckinDate,
         b.CheckOutDate,
-        (int)(b.CheckOutDate - b.CheckInDate).TotalDays,
+        (int)(b.CheckOutDate - b.CheckinDate).TotalDays,
         b.TotalPrice,
         b.Status,
         b.CreatedAt

@@ -19,11 +19,13 @@ public static class DependencyInjection
     options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
 
 
-        services.AddScoped<IUserRepository, UserRepository>()
-        .AddScoped<IBookingRepository, BookingRepository>()
-        .AddScoped<IReviewRepository, ReviewRepository>()
-        .AddScoped<IRoomRepository, RoomRepository>()
-        .AddScoped<IPaymentRepository, PaymentRepository>();
+     services.AddScoped<IUserRepository, UserRepository>()
+         .AddScoped<IBookingRepository, BookingRepository>()
+         .AddScoped<IReviewRepository, ReviewRepository>()
+         .AddScoped<IRoomRepository, RoomRepository>()
+         .AddScoped<IPaymentRepository, PaymentRepository>()
+         .AddScoped<IAmenitiesRepository, AmenitiesRepository>()
+         .AddScoped<ICancellationLogRepository, CancellationLogRepository>();
         
 
         return services;

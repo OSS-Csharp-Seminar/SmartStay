@@ -66,7 +66,7 @@ public class RoomRepository : Repository<Room>, IRoomRepository
             //M.G: room availability for given date
             query = query.Where(r => !r.Bookings.Any(b => (b.Status == BookingStatus.CheckedIn
                                                            || b.Status == BookingStatus.Confirmed)
-                                                          && b.CheckInDate < dto.FreeTo &&
+                                                          && b.CheckinDate < dto.FreeTo &&
                                                           b.CheckOutDate > dto.FreeFrom));
         }
 
