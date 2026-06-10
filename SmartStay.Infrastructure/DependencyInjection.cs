@@ -25,8 +25,8 @@ public static class DependencyInjection
          .AddScoped<IRoomRepository, RoomRepository>()
          .AddScoped<IPaymentRepository, PaymentRepository>()
          .AddScoped<IAmenitiesRepository, AmenitiesRepository>()
-         .AddScoped<ICancellationLogRepository, CancellationLogRepository>();
-        
+         .AddScoped<ICancellationLogRepository, CancellationLogRepository>()
+         .AddScoped<ITransactionSecurity, ITransactionSecurity>(); 
 
         return services;
     }
