@@ -83,6 +83,10 @@ public class RoomRepository : Repository<Room>, IRoomRepository
                 "rating" => (dto.IsDescending)
                     ? query.OrderByDescending(r => r.Reviews.Average(rev => rev.Rating))
                     : query.OrderBy(r => r.Reviews.Average(rev => rev.Rating)),
+                
+                "date" => (dto.IsDescending)
+                    ? query.OrderByDescending(r => r.CreatedAt)
+                    : query.OrderBy(r => r.CreatedAt),
                     
                     _ => (dto.IsDescending)
                     ? query.OrderByDescending(r => r.Reviews.Average(rev => rev.Rating))
