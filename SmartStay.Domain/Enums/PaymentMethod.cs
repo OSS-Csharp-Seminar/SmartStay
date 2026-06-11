@@ -9,5 +9,6 @@ namespace SmartStay.Domain.Enums
         PayPal,
         MobilePayment,
         Cash,
+        NotChosen
     }
 }
