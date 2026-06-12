@@ -1,0 +1,177 @@
+@page "/recommendations"
+@using SmartStay.Application.Interfaces
+@using SmartStay.Application.Dto.RecommendationDto
+@using SmartStay.Domain.Enums
+@inject IRecommendationService RecommendationService
+@rendermode InteractiveServer
+
+<div class="rec-page">
+    <h2 class="rec-title">🏨 Room Recommendations</h2>
+    <p class="rec-subtitle">Tell us what you need and we'll find the best rooms for you.</p>
+
+    <div class="rec-form">
+        <div class="rec-form-row">
+            <div class="rec-field">
+                <label>Max budget per night ($)</label>
+                <input type="number" @bind="_maxBudget" placeholder="No limit" min="0" />
+            </div>
+            <div class="rec-field">
+                <label>Number of guests *</label>
+                <input type="number" @bind="_guestCount" min="1" />
+            </div>
+            <div class="rec-field">
+                <label>City</label>
+                <input type="text"
+                       @bind="_city"
+                       @bind:event="oninput"
+                       list="city-list"
+                       placeholder="Any city" />
+                <datalist id="city-list">
+                    @foreach (var city in FilteredCities)
+                    {
+                        <option value="@city" />
+                    }
+                </datalist>
+            </div>
+            <div class="rec-field">
+                <label>Bed type</label>
+                <select @bind="_bedType">
+                    <option value="">No preference</option>
+                    @foreach (var bt in Enum.GetValues<BedType>())
+                    {
+                        <option value="@bt">@bt</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="rec-amenities">
+            <label>Wanted amenities</label>
+            <div class="rec-amenities-grid">
+                @foreach (var amenity in _allAmenities)
+                {
+                    <label class="rec-checkbox">
+                        <input type="checkbox"
+                               checked="@_selectedAmenities.Contains(amenity)"
+                               @onchange="() => ToggleAmenity(amenity)" />
+                        @amenity
+                    </label>
+                }
+            </div>
+        </div>
+
+        <button class="rec-search-btn" @onclick="Search" disabled="@_loading">
+            @if (_loading) { <span>Searching...</span> } else { <span>Find Best Rooms</span> }
+        </button>
+    </div>
+
+    @if (_searched)
+    {
+        <div class="rec-results">
+            @if (!_results.Any())
+            {
+                <p class="rec-empty">No rooms found matching your criteria. Try adjusting your preferences.</p>
+            }
+            else
+            {
+                <h3 class="rec-results-title">@_results.Count room(s) found</h3>
+                @foreach (var room in _results)
+                {
+                    <div class="rec-card">
+                        <div class="rec-card-left">
+                            <div class="rec-score @ScoreClass(room.MatchScore)">
+                                @room.MatchScore%
+                            </div>
+                        </div>
+                        <div class="rec-card-body">
+                            <h4>@room.Name</h4>
+                            @if (!string.IsNullOrEmpty(room.Description))
+                            {
+                                <p class="rec-desc">@room.Description</p>
+                            }
+                            <div class="rec-meta">
+                                <span>💰 $@room.PricePerNight/night</span>
+                                <span>👥 @room.Capacity guests</span>
+                                <span>🛏 @room.BedType</span>
+                                <span>⭐ @room.AverageRating.ToString("F1")</span>
+                                @if (room.City != null) { <span>📍 @room.City</span> }
+                            </div>
+                            @if (room.Amenities.Any())
+                            {
+                                <div class="rec-amenity-tags">
+                                    @foreach (var a in room.Amenities)
+                                    {
+                                        <span class="rec-tag">@a</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private float? _maxBudget;
+    private int _guestCount = 1;
+    private string? _city;
+    private string _bedType = "";
+    private bool _loading;
+    private bool _searched;
+    private List<RoomRecommendationDto> _results = new();
+    private List<string> _allCities = new();
+
+    private readonly List<string> _allAmenities = new()
+    {
+        "Wifi", "Air conditioning", "Pool", "Garage",
+        "Gym", "Spa", "Jacuzzi", "Breakfast", "Fireplace"
+    };
+
+    private readonly HashSet<string> _selectedAmenities = new();
+
+    private IEnumerable<string> FilteredCities =>
+        string.IsNullOrWhiteSpace(_city)
+            ? _allCities
+            : _allCities.Where(c => c.StartsWith(_city, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        _allCities = await RecommendationService.GetCitiesAsync();
+    }
+
+    private void ToggleAmenity(string amenity)
+    {
+        if (!_selectedAmenities.Remove(amenity))
+            _selectedAmenities.Add(amenity);
+    }
+
+    private async Task Search()
+    {
+        if (_guestCount < 1) return;
+
+        _loading = true;
+        StateHasChanged();
+
+        var request = new RecommendationRequestDto(
+            MaxBudget: _maxBudget,
+            GuestCount: _guestCount,
+            WantedAmenities: _selectedAmenities.Any() ? _selectedAmenities.ToList() : null,
+            PreferredBedType: Enum.TryParse<BedType>(_bedType, out var bt) ? bt : null,
+            City: string.IsNullOrWhiteSpace(_city) ? null : _city.Trim()
+        );
+
+        _results = await RecommendationService.GetRecommendationsAsync(request);
+        _searched = true;
+        _loading = false;
+        StateHasChanged();
+    }
+
+    private static string ScoreClass(int score) => score switch
+    {
+        >= 80 => "score-high",
+        >= 50 => "score-mid",
+        _     => "score-low"
+    };
+}

@@ -28,8 +28,8 @@
 }
 
 .ai-chat-window {
-    width: 360px;
-    max-height: 520px;
+    width: clamp(280px, 90vw, 380px);
+    max-height: min(520px, 70vh);
     background: #ffffff;
     border-radius: 14px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
