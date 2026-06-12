@@ -1,13 +1,136 @@
 ﻿@page "/dashboard"
 @page "/"
 
+@using SmartStay.Application.Dto.RoomDto
 @using SmartStay.Application.Interfaces
+@using SmartStay.Domain.Dto
+
+@inject IRoomService RoomService
+@inject NavigationManager Nav
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>New Apartments</h1>
+</div>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
+    @if (rooms != null)
+    {
+        @if (rooms.Any())
+        {
+            <div class="row">
+                @foreach (var room in rooms)
+                {
+                    <div class="col-12 mb-4">
+                        <div class="card" style="background-color: rgba(255, 255, 255, 0.1);">
+                            <div class="card-body">
+                                <h5 class="card-title">@room.Name</h5>
+                                <p class="card-text">
+                                    <strong>Price:</strong> @room.PricePerNight $<br/>
+                                    <strong>Capacity:</strong> @room.Capacity<br/>
+                                    <strong>Rating:</strong> @room.AverageRating<br/>
+                                    <strong>Location:</strong> @room.Location.City, @room.Location.Country<br/>
+                        
+                                    @if (room.Amenities.Any())
+                                    {
+                                        <strong>Amenities: </strong>
+                                        @for (int i = 0; i < 3; i++)
+                                        {
+                                            if (i >= room.Amenities.Count())
+                                            {
+                                                break;
+                                            }
+
+                                            <span>@room.Amenities.ElementAt(i)</span>
+                                            @if (i < room.Amenities.Count() - 1)
+                                            {
+                                                <span>, </span>
+                                            }
+                                        }
+                                        @if (room.Amenities.Count() >= 3)
+                                        {
+                                            <span> ...</span>
+                                        }
+                                    }
+                                </p>
+                                <button class="btn btn-success" @onclick="() => NavigateToRoom(room.Id)">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        
+        }
+        else
+        {
+            <p>No rooms found at moment.</p>
+        }
+    }
+</div>
+
+@code {//M.G: reused from Apartaments.razor
+    public class Qry
+    {
+        public string Page { get; set; } = "1";
+        public string PageSize{get; set;}="10";
+        public string? Name { get; set; } 
+        public string? PriceLowerRange{get; set;}
+        public string? PriceUpperRange{get; set;}
+        public string? GuestNumber{get; set;}
+        public List<string>? Amenities{get; set;}
+        public string? Rating{get; set;}
+        public string? FreeFrom{get; set;}
+        public string? FreeTo{get; set;}
+        public string? City {get; set;}
+        public string? SortBy { get; set; } = "date";
+        public string? IsDescending { get; set; } = "true";
+    };
 
 
-<PageTitle>Home</PageTitle>
+    private Qry searchDto = new();
+    private IEnumerable<RoomResponseDto>? rooms;
+    private string message = null;
 
-<h1>Hello, world!</h1>
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            if(searchDto is { PriceLowerRange: not null, PriceUpperRange: not null })
+                if (float.Parse(searchDto.PriceLowerRange) < 0 
+                    || float.Parse(searchDto.PriceLowerRange) > float.Parse(searchDto.PriceUpperRange)
+                    || float.Parse(searchDto.PriceUpperRange) < 0)
+                {
+                    throw new Exception("Invalid price range");
+                }
 
-Welcome to your new app.
+
+            var queri = new RoomQueryDto(
+                uint.Parse(searchDto.Page),
+                uint.Parse(searchDto.PageSize),
+                searchDto.Name,
+                string.IsNullOrEmpty(searchDto.PriceLowerRange) ? null : float.Parse(searchDto.PriceLowerRange),
+                string.IsNullOrEmpty(searchDto.PriceUpperRange) ? null : float.Parse(searchDto.PriceUpperRange),
+                string.IsNullOrEmpty(searchDto.GuestNumber) ? null : uint.Parse(searchDto.GuestNumber) ,
+                searchDto.Amenities,
+                string.IsNullOrEmpty(searchDto.Rating) ? null : float.Parse(searchDto.Rating) ,
+                string.IsNullOrEmpty(searchDto.FreeFrom) ? null : DateTimeOffset.Parse(searchDto.FreeFrom),
+                string.IsNullOrEmpty(searchDto.FreeTo) ? null : DateTimeOffset.Parse(searchDto.FreeTo) ,
+                searchDto.City, 
+                searchDto.SortBy,
+                bool.Parse(searchDto.IsDescending)
+            );
 
 
+            rooms = await RoomService.GetRooms(queri);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching rooms: {ex.Message}");
+        }
+    }
+    
+    private void NavigateToRoom(Guid RoomId)
+    {
+        Nav.NavigateTo($"/rooms/{RoomId}");
+    }   
+
+}

@@ -46,7 +46,7 @@ public class BookingService : IBookingService
         var bookingId = Guid.NewGuid();
         var totalPrice = (decimal)room.PricePerNight * nights;
 
-        var payment = new Payment{BookingId = bookingId,Amount = totalPrice,PaymentStatus=PaymentStatus.Pending};
+        var payment = new Payment{BookingId = bookingId,Amount = totalPrice,PaymentStatus=PaymentStatus.Pending,PaymentMethod = PaymentMethod.NotChosen};
 
         var booking = new Booking
         {
