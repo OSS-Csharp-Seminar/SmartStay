@@ -1,10 +1,5 @@
-﻿@using System.Diagnostics
-@using Blazored.LocalStorage
-@using SmartStay.Application.Interfaces
+﻿@using SmartStay.Application.Interfaces
 @inherits LayoutComponentBase
-@inject ICustomAuthenticationStateProvider AuthStateProvider
-@inject NavigationManager Nav
-@inject IJSRuntime JS
 
 <div class="page">
     <div class="sidebar">
@@ -26,22 +21,24 @@
     <a class="dismiss">🗙</a>
 </div>
 
-@code {//M.G: [Authorize] attribute is wierd (doesn't work) without httponly cookie so I made manual authentication until i find work around.
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // var token = await LocalStorage.GetItemAsync<string>("token");
-            var token = await JS.InvokeAsync<string>("getCookie", "token");
-            
-            if (string.IsNullOrEmpty(token))
-            {
-                Nav.NavigateTo("/login");
-                return;
-            }
-            
-            await AuthStateProvider.NotifyUserAuthenticationAsync(token);
-            StateHasChanged();
-        }
-    }
-}
+@* M.G: code bellow is deprecated *@
+
+@* @code {//M.G: [Authorize] attribute is wierd (doesn't work) without httponly cookie so I made manual authentication until i find work around. *@
+@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*     { *@
+@*         if (firstRender) *@
+@*         { *@
+@*             // var token = await LocalStorage.GetItemAsync<string>("token"); *@
+@*             var token = await JS.InvokeAsync<string>("getCookie", "token"); *@
+@*              *@
+@*             if (string.IsNullOrEmpty(token)) *@
+@*             { *@
+@*                 Nav.NavigateTo("/login"); *@
+@*                 return; *@
+@*             } *@
+@*              *@
+@*             await AuthStateProvider.NotifyUserAuthenticationAsync(token); *@
+@*             StateHasChanged(); *@
+@*         } *@
+@*     } *@
+@* } *@

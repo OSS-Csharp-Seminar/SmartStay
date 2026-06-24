@@ -1,8 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
 using SmartStay.Application.Interfaces;
 
@@ -11,17 +9,13 @@ namespace SmartStay.Application.Services.Authentication;
 public class CustomAuthenticationStateProvider: AuthenticationStateProvider,ICustomAuthenticationStateProvider
 {
     
-   // private readonly ILocalStorageService _localStorage; 
    private readonly JwtSecurityTokenHandler _tokenHandler;
-   private readonly IHttpContextAccessor _httpContextAccessor;
    private readonly IJSRuntime _js;
 
-   public CustomAuthenticationStateProvider(/*ILocalStorageService localStorage,*/ JwtSecurityTokenHandler tokenHandler, IHttpContextAccessor httpContextAccessor, IJSRuntime js) 
+   public CustomAuthenticationStateProvider( JwtSecurityTokenHandler tokenHandler, IJSRuntime js) 
    {
-        // _localStorage = localStorage;     
         _js = js;
         _tokenHandler = tokenHandler;
-        _httpContextAccessor = httpContextAccessor;
    }
     
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
