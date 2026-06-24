@@ -17,6 +17,20 @@
 <Routes @rendermode="@(new InteractiveServerRenderMode(prerender:false))" />
 
 <script src="_framework/blazor.web.js"></script>
+
+<script>//M.G: functions for cookies
+    window.setCookie = function(name, value, minutes) {
+        const expires = new Date(Date.now() + minutes * 60000).toUTCString();
+        document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict`;
+    }
+    window.deleteCookie = function(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+    window.getCookie = function(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : null;
+    }
+</script>
 </body>
 
 </html>

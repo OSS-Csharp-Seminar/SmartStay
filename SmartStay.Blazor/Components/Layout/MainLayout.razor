@@ -1,9 +1,10 @@
-﻿@using Blazored.LocalStorage
+﻿@using System.Diagnostics
+@using Blazored.LocalStorage
 @using SmartStay.Application.Interfaces
 @inherits LayoutComponentBase
 @inject ICustomAuthenticationStateProvider AuthStateProvider
-@inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
 <div class="page">
     <div class="sidebar">
@@ -30,7 +31,8 @@
     {
         if (firstRender)
         {
-            var token = await LocalStorage.GetItemAsync<string>("token");
+            // var token = await LocalStorage.GetItemAsync<string>("token");
+            var token = await JS.InvokeAsync<string>("getCookie", "token");
             
             if (string.IsNullOrEmpty(token))
             {

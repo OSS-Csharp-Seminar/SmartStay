@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,12 +33,15 @@ public static class DependencyInjection
           })
           .AddJwtBearer(options =>
           {
-             // var jwtKey = configuration["Jwt:Key"] 
-             //              ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
-             //
-             // if (jwtKey.Length < 32)
-             //    throw new InvalidOperationException("JWT Key must be at least 32 characters long");
-             //
+             options.Events = new JwtBearerEvents//M.G: tells autorization where to find token
+             {
+                OnMessageReceived = context =>
+                {
+                   context.Token = context.Request.Cookies["token"];
+                   return Task.CompletedTask;
+                }
+             };
+           
              options.TokenValidationParameters = new TokenValidationParameters
              {
                 //M.G:key, Issuser,audience hardcoded for now. hardcoded in JwtService as well
@@ -49,13 +53,14 @@ public static class DependencyInjection
                 ValidAudience ="SmartStay" ,
                 IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes("a9F3kLm2Xq7ZpR8vT1nW6cB4yH0uD5Js")),
-                ClockSkew = TimeSpan.Zero 
+                ClockSkew = TimeSpan.Zero,
+                 RoleClaimType = ClaimTypes.Role 
              };
       
           });
-
+   
        services.AddBlazoredLocalStorage();
-
+   
        services.AddSingleton<IPasswordHasher<string>, PasswordHasherArgon2>()
           .AddSingleton<IMapper<User, UserCreationRequestDto>, UserCreationDtoMapper>()
           .AddSingleton<IMapper<Room,RoomResponseDto>,RoomMapper>()
@@ -71,9 +76,9 @@ public static class DependencyInjection
           .AddScoped<IReviewService, ReviewService>()
           .AddScoped<ICustomAuthenticationStateProvider>(provider =>//M.G: because AuthenticationStateProvider doesn't have methods from IcustomstateProvider we cast it with this line (and we have to use him) and we have it in CustomStateProvider.
              (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>());
-
-      services.AddAuthorization();
-      services.AddAuthorizationCore();
+   
+      services.AddAppAuthorization();
+       
       
       return services;
    }

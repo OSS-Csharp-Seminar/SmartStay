@@ -1,5 +1,10 @@
 ﻿@page "/weather"
-@attribute [StreamRendering]
+@using Microsoft.AspNetCore.Authorization
+@using SmartStay.Domain.Enums
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Renter")]
+@* @attribute [StreamRendering] *@
+
 
 <PageTitle>Weather</PageTitle>
 
