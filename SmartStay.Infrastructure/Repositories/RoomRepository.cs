@@ -11,6 +11,17 @@ public class RoomRepository : Repository<Room>, IRoomRepository
 {
     public RoomRepository(SmartStayDbContext dbContext) : base(dbContext) {}
 
+    //M.G: override for method in try to fix refresh issue.
+    // public new async Task<Room?> GetByIdAsync(Guid id)
+    // {
+    //    return await _dbSet
+    //        .Include(r => r.Location)
+    //        .Include(r => r.RoomAmenities)
+    //        .ThenInclude(ra => ra.Amenity)
+    //        .Include(r => r.Reviews)
+    //        .FirstOrDefaultAsync(r => r.Id == id);
+    // }
+    //
     public async Task<IEnumerable<Room>> GetAllRoomsByQueryAsync(RoomQueryDto dto)
     {
         var query = _dbSet.AsQueryable();

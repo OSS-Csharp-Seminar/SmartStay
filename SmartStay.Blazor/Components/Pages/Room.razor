@@ -1,20 +1,23 @@
 @page "/rooms/{RoomId:guid}"
 
+
 @using System.Diagnostics
-@using System.Runtime.InteropServices.JavaScript
 @using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application.Dto
 @using SmartStay.Application.Dto.BookingDto
 @using SmartStay.Application.Dto.RoomDto
 @using SmartStay.Application.Interfaces
-@using SmartStay.Application.Services
 @using SmartStay.Blazor.Components.Layout
 
 @layout MainLayout
-@inject ILocalStorageService LocalStorage
 @inject IRoomService RoomService
 @inject IReviewService ReviewService
 @inject IBookingService BookingService
+@inject IJSRuntime JS
+
+
 
 <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
     <h1>@_room?.Name</h1>
@@ -152,9 +155,17 @@
                                     </div>
                                 </div>
 
-                                <button class="btn btn-success w-100 mt-3" @onclick="BookRoom"> 
-                                    Book now 
-                                </button>
+                                <AuthorizeView>
+                                    <Authorized>
+                                        <button class="btn btn-success w-100 mt-3" @onclick="BookRoom">
+                                            Book now
+                                        </button>
+                                    </Authorized>
+                                    
+                                    <NotAuthorized>
+                                        <span class="text-danger">You have to be singed in to book!</span>
+                                    </NotAuthorized>
+                                </AuthorizeView>
                             </div>
                             }
                         
@@ -208,8 +219,8 @@
 
     private bool _IsBookingFormShown = false;
     [Parameter] public Guid RoomId { get; set; }
-    private RoomResponseDto _room;
-    private IEnumerable<ReviewResponseDto> _reviews;
+    private RoomResponseDto? _room;
+    private IEnumerable<ReviewResponseDto>? _reviews;
     private IEnumerable<RoomAvailabilityDto>? _occupiedRooms;
     private DateTime _currentDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
     private HashSet<DateOnly> _markedDates = new();
@@ -251,7 +262,8 @@
 
     private async Task BookRoom()
     {
-        var Userid = await LocalStorage.GetItemAsync<Guid>("id");
+        var Userid = await JS.InvokeAsync<Guid>("getCookie","id"); 
+
 
         var Checkin = new DateTimeOffset(_markedDates.Min().ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
         var CheckOut = new DateTimeOffset(_markedDates.Max().ToDateTime(TimeOnly.MaxValue), TimeSpan.Zero);

@@ -8,9 +8,9 @@
 @using SmartStay.Blazor.Components.Layout
 @layout AuthenticaitonLayout
 @inject IAuthenticationService AuthenticationService
-@inject ILocalStorageService LocalStorage
 @inject ICustomAuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Nav
+@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Sign Up</PageTitle>
 
@@ -94,7 +94,13 @@
             Debug.WriteLine("D-email: "+signupDto.Email);
             var response=await AuthenticationService.CreateUser(dto);
             
-            await LocalStorage.SetItemAsync("id", response.UserId);
+            // await LocalStorage.SetItemAsync("id", response.UserId);
+            
+            HttpContextAccessor.HttpContext?.Response.Cookies.Append(
+                "id"
+                ,response.UserId.ToString()
+                ,new CookieOptions{SameSite=SameSiteMode.Strict, Expires = DateTime.UtcNow.AddMinutes(120)});
+
             await AuthenticationStateProvider.NotifyUserAuthenticationAsync(response.Token);
 
             

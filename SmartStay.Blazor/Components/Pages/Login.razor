@@ -7,10 +7,10 @@
 @using SmartStay.Application.Interfaces
 @using SmartStay.Blazor.Components.Layout
 @layout AuthenticaitonLayout
-@inject ILocalStorageService LocalStorage
 @inject IAuthenticationService AuthenticationService
 @inject ICustomAuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
 <PageTitle>Login</PageTitle>
 
@@ -71,9 +71,9 @@
             response = await AuthenticationService.Authenticate(dto);
             
             //M.G: Not secure but simple(vulnerable to xss attack). cant add it to httponly cookie cause there is no web api.
-            await LocalStorage.SetItemAsync("id", response.UserId);
+            await JS.InvokeVoidAsync("setCookie", "id", response.UserId.ToString(), 120);
             await AuthenticationStateProvider.NotifyUserAuthenticationAsync(response.Token);
-            
+                    
             error="uspjeh"; 
         }
         catch (Exception e)

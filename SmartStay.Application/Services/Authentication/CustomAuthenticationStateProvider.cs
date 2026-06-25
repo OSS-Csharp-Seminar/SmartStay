@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 using SmartStay.Application.Interfaces;
 
 namespace SmartStay.Application.Services.Authentication;
@@ -9,18 +9,23 @@ namespace SmartStay.Application.Services.Authentication;
 public class CustomAuthenticationStateProvider: AuthenticationStateProvider,ICustomAuthenticationStateProvider
 {
     
-   private readonly ILocalStorageService _localStorage; 
    private readonly JwtSecurityTokenHandler _tokenHandler;
+   private readonly IJSRuntime _js;
 
-   public CustomAuthenticationStateProvider(ILocalStorageService localStorage, JwtSecurityTokenHandler tokenHandler) 
+   public CustomAuthenticationStateProvider( JwtSecurityTokenHandler tokenHandler, IJSRuntime js) 
    {
-        _localStorage = localStorage;     
+        _js = js;
         _tokenHandler = tokenHandler;
    }
     
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _localStorage.GetItemAsync<string>("token");
+        string? token=null;
+        try
+        {
+            token = await _js.InvokeAsync<string>("getCookie","token"); 
+        }
+        catch{}
 
         if (string.IsNullOrWhiteSpace(token))
         {   
@@ -35,11 +40,16 @@ public class CustomAuthenticationStateProvider: AuthenticationStateProvider,ICus
 
             if (jwtToken.ValidTo < DateTime.UtcNow)
             {
-                await _localStorage.RemoveItemAsync("token");
+                await _js.InvokeVoidAsync("deleteCookie", "token");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
+            
+            //M.G: maps user role to the claim 
+            var claims= jwtToken.Claims.Select(c => c.Type == "role"
+            ? new Claim(ClaimTypes.Role, c.Value)
+            :c).ToList();
 
-            var identity = new ClaimsIdentity(jwtToken.Claims, "jwt");
+            var identity = new ClaimsIdentity(claims, "jwt",ClaimTypes.Name, ClaimTypes.Role);
             var user = new ClaimsPrincipal(identity);
 
             return new AuthenticationState(user);
@@ -53,14 +63,14 @@ public class CustomAuthenticationStateProvider: AuthenticationStateProvider,ICus
 
     public async Task NotifyUserAuthenticationAsync(string token)
     {
-       await _localStorage.SetItemAsync("token", token); 
+        await _js.InvokeVoidAsync("setCookie", "token", token, 120);
        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     public async Task LogoutAsync()
     {
-        await _localStorage.RemoveItemAsync("token");
-        await _localStorage.RemoveItemAsync("id");
+        await _js.InvokeVoidAsync("deleteCookie","token");
+        await _js.InvokeVoidAsync("deleteCookie", "id");
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
