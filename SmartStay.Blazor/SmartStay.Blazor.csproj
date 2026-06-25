@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartStay.API\SmartStay.API.csproj" />
     <ProjectReference Include="..\SmartStay.Infrastructure\SmartStay.Infrastructure.csproj" />
   </ItemGroup>
 

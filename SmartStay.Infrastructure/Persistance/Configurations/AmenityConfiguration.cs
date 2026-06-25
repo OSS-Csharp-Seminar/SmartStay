@@ -38,22 +38,22 @@ public class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
         {
             Id=Guid.NewGuid(),
             Name="Pool",
-        }, 
+        },
         new Amenity
             {
              Id=Guid.NewGuid(),
              Name="Garage",
-            }, 
+            },
         new Amenity
         {
             Id=Guid.NewGuid(),
             Name="Gym",
-        }, 
+        },
         new Amenity
         {
             Id=Guid.NewGuid(),
             Name="Spa",
-        }, 
+        },
         new Amenity
         {
             Id=Guid.Parse("48fd1893-3344-4a45-b7c3-f271acd744e6"),
@@ -63,7 +63,7 @@ public class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
         {
             Id=Guid.NewGuid(),
             Name="Breakfast",
-        }, 
+        },
         new Amenity
         {
             Id=Guid.Parse("48fd1813-3344-4a45-42c2-f2718cd741e5"),
