@@ -14,7 +14,9 @@ using SmartStay.Application.Dto.UserDto;
 using SmartStay.Application.Interfaces;
 using SmartStay.Application.Mapper;
 using SmartStay.Application.Services;
+using SmartStay.Application.Services.AI;
 using SmartStay.Application.Services.Authentication;
+using SmartStay.Application.Services.Recommendation;
 using SmartStay.Application.Services;
 using SmartStay.Application.Util;
 using SmartStay.Domain.Entities;
@@ -78,8 +80,10 @@ public static class DependencyInjection
              (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>());
    
       services.AddAppAuthorization();
-       
       
+      services.AddHttpClient<IAiService, OllamaService>();
+      services.AddScoped<IRecommendationService, RecommendationService>();
+
       return services;
    }
 }

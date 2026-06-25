@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartStay.Infrastructure.Persistance;
@@ -11,9 +12,11 @@ using SmartStay.Infrastructure.Persistance;
 namespace SmartStay.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(SmartStayDbContext))]
-    partial class SmartStayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526222537_UpdateSchema")]
+    partial class UpdateSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,53 +42,6 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                         .IsUnique();
 
                     b.ToTable("amenities", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("44fd1192-34ea-4a44-b8c3-f2716cd744e6"),
-                            Name = "Wifi"
-                        },
-                        new
-                        {
-                            Id = new Guid("48fd1822-33ea-4a44-b8e3-f2716dd744e6"),
-                            Name = "Air conditioning"
-                        },
-                        new
-                        {
-                            Id = new Guid("1f78345f-fa5f-4ef8-898e-2e6afc355131"),
-                            Name = "Pool"
-                        },
-                        new
-                        {
-                            Id = new Guid("e38c5313-a4bc-435b-a942-0a7cb495ba87"),
-                            Name = "Garage"
-                        },
-                        new
-                        {
-                            Id = new Guid("d3b7bccf-8e8e-4df7-9163-23752ade6e5b"),
-                            Name = "Gym"
-                        },
-                        new
-                        {
-                            Id = new Guid("bb06550e-d7b6-4a21-b91f-8cdae43dbf7b"),
-                            Name = "Spa"
-                        },
-                        new
-                        {
-                            Id = new Guid("48fd1893-3344-4a45-b7c3-f271acd744e6"),
-                            Name = "Jacuzzi"
-                        },
-                        new
-                        {
-                            Id = new Guid("aedfa227-3169-436a-a0c0-7b6c4e656972"),
-                            Name = "Breakfast"
-                        },
-                        new
-                        {
-                            Id = new Guid("48fd1813-3344-4a45-42c2-f2718cd741e5"),
-                            Name = "Fireplace"
-                        });
                 });
 
             modelBuilder.Entity("SmartStay.Domain.Entities.Booking", b =>
@@ -120,10 +76,9 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RoomId");
 
-                    b.HasIndex("RoomId", "CheckinDate", "CheckOutDate", "Status")
-                        .HasDatabaseName("IX_Booking_RoomAvailability");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings", (string)null);
                 });
@@ -155,95 +110,6 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                         .IsUnique();
 
                     b.ToTable("CancellationLog", (string)null);
-                });
-
-            modelBuilder.Entity("SmartStay.Domain.Entities.Location", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("decimal(9,6)");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("decimal(9,6)");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Locations", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("44fd2891-34ea-4a44-b8c3-f2716cd744e6"),
-                            Address = "123 Main Street",
-                            City = "New York",
-                            Country = "United States",
-                            Latitude = 40.712800000000001,
-                            Longitude = -74.006,
-                            PostalCode = "10001"
-                        },
-                        new
-                        {
-                            Id = new Guid("64a6ac13-7659-4434-9c39-403e98d7aa7e"),
-                            Address = "456 Oxford Street",
-                            City = "London",
-                            Country = "United Kingdom",
-                            Latitude = 51.507399999999997,
-                            Longitude = -0.1278,
-                            PostalCode = "SW1A 1AA"
-                        },
-                        new
-                        {
-                            Id = new Guid("d106dc17-6a8c-4e91-8355-9a1a756f7833"),
-                            Address = "789 Champs-Élysées",
-                            City = "Paris",
-                            Country = "France",
-                            Latitude = 48.8566,
-                            Longitude = 2.3521999999999998,
-                            PostalCode = "75008"
-                        },
-                        new
-                        {
-                            Id = new Guid("ebbff419-195d-4b57-af48-fac84d93f482"),
-                            Address = "321 Shibuya Crossing",
-                            City = "Tokyo",
-                            Country = "Japan",
-                            Latitude = 35.676200000000001,
-                            Longitude = 139.65029999999999,
-                            PostalCode = "150-0043"
-                        },
-                        new
-                        {
-                            Id = new Guid("f6aa2e4e-64b6-4608-b73d-89cb699f0382"),
-                            Address = "555 Harbour Bridge Road",
-                            City = "Sydney",
-                            Country = "Australia",
-                            Latitude = -33.8688,
-                            Longitude = 151.20930000000001,
-                            PostalCode = "2000"
-                        });
                 });
 
             modelBuilder.Entity("SmartStay.Domain.Entities.Payment", b =>
@@ -339,9 +205,6 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -355,76 +218,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
-
                     b.ToTable("Rooms", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("44d360a3-7433-4405-aaf2-32c2a3eebdf5"),
-                            AverageRating = 4.8f,
-                            BedType = "King",
-                            Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 13, 12, 55, 37, 417, DateTimeKind.Unspecified).AddTicks(1768), new TimeSpan(0, 0, 0, 0, 0)),
-                            Description = "Spacious room with stunning ocean views",
-                            LocationId = new Guid("44fd2891-34ea-4a44-b8c3-f2716cd744e6"),
-                            Name = "Deluxe Ocean View",
-                            PricePerNight = 250f,
-                            Size = 45
-                        },
-                        new
-                        {
-                            Id = new Guid("487b0929-3600-450c-928a-5d0e9bcefaec"),
-                            AverageRating = 4.6f,
-                            BedType = "Queen",
-                            Capacity = 4,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 13, 12, 55, 37, 417, DateTimeKind.Unspecified).AddTicks(2182), new TimeSpan(0, 0, 0, 0, 0)),
-                            Description = "Perfect for families, with two bedrooms and a living area",
-                            LocationId = new Guid("64a6ac13-7659-4434-9c39-403e98d7aa7e"),
-                            Name = "Family Suite",
-                            PricePerNight = 350f,
-                            Size = 75
-                        },
-                        new
-                        {
-                            Id = new Guid("cf5106c1-8fe1-4889-b905-c7810f2eb519"),
-                            AverageRating = 4.4f,
-                            BedType = "Single",
-                            Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 13, 12, 55, 37, 417, DateTimeKind.Unspecified).AddTicks(2210), new TimeSpan(0, 0, 0, 0, 0)),
-                            Description = "Ideal for business travelers with work desk and high-speed internet",
-                            LocationId = new Guid("d106dc17-6a8c-4e91-8355-9a1a756f7833"),
-                            Name = "Business Executive",
-                            PricePerNight = 180f,
-                            Size = 30
-                        },
-                        new
-                        {
-                            Id = new Guid("a6a7acdf-88c2-4fd2-b12e-a387d689f3db"),
-                            AverageRating = 4.9f,
-                            BedType = "King",
-                            Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 13, 12, 55, 37, 417, DateTimeKind.Unspecified).AddTicks(2213), new TimeSpan(0, 0, 0, 0, 0)),
-                            Description = "Cozy room perfect for couples with fireplace and jacuzzi",
-                            LocationId = new Guid("ebbff419-195d-4b57-af48-fac84d93f482"),
-                            Name = "Romantic Getaway",
-                            PricePerNight = 300f,
-                            Size = 40
-                        },
-                        new
-                        {
-                            Id = new Guid("097758cd-3def-4b95-8d79-491a56f818b9"),
-                            AverageRating = 4.2f,
-                            BedType = "Single",
-                            Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 13, 12, 55, 37, 417, DateTimeKind.Unspecified).AddTicks(2216), new TimeSpan(0, 0, 0, 0, 0)),
-                            Description = "Compact yet comfortable studio with kitchenette",
-                            LocationId = new Guid("f6aa2e4e-64b6-4608-b73d-89cb699f0382"),
-                            Name = "Studio Apartment",
-                            PricePerNight = 120f,
-                            Size = 25
-                        });
                 });
 
             modelBuilder.Entity("SmartStay.Domain.Entities.RoomAmenity", b =>
@@ -440,28 +234,6 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                     b.HasIndex("AmenityId");
 
                     b.ToTable("room_amenities", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            RoomId = new Guid("44d360a3-7433-4405-aaf2-32c2a3eebdf5"),
-                            AmenityId = new Guid("44fd1192-34ea-4a44-b8c3-f2716cd744e6")
-                        },
-                        new
-                        {
-                            RoomId = new Guid("44d360a3-7433-4405-aaf2-32c2a3eebdf5"),
-                            AmenityId = new Guid("48fd1822-33ea-4a44-b8e3-f2716dd744e6")
-                        },
-                        new
-                        {
-                            RoomId = new Guid("a6a7acdf-88c2-4fd2-b12e-a387d689f3db"),
-                            AmenityId = new Guid("48fd1893-3344-4a45-b7c3-f271acd744e6")
-                        },
-                        new
-                        {
-                            RoomId = new Guid("a6a7acdf-88c2-4fd2-b12e-a387d689f3db"),
-                            AmenityId = new Guid("48fd1813-3344-4a45-42c2-f2718cd741e5")
-                        });
                 });
 
             modelBuilder.Entity("SmartStay.Domain.Entities.User", b =>
@@ -516,7 +288,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                     b.HasOne("SmartStay.Domain.Entities.Room", "Room")
                         .WithMany("Bookings")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SmartStay.Domain.Entities.User", "User")
@@ -569,17 +341,6 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SmartStay.Domain.Entities.Room", b =>
-                {
-                    b.HasOne("SmartStay.Domain.Entities.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("SmartStay.Domain.Entities.RoomAmenity", b =>
