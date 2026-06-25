@@ -11,10 +11,10 @@
 @using SmartStay.Blazor.Components.Layout
 
 @layout MainLayout
-@inject ILocalStorageService LocalStorage
 @inject IRoomService RoomService
 @inject IReviewService ReviewService
 @inject IBookingService BookingService
+@inject IJSRuntime JS
 
 <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
     <h1>@_room?.Name</h1>
@@ -259,7 +259,8 @@
 
     private async Task BookRoom()
     {
-        var Userid = await LocalStorage.GetItemAsync<Guid>("id");
+        var Userid = await JS.InvokeAsync<Guid>("getCookie","id"); 
+
 
         var Checkin = new DateTimeOffset(_markedDates.Min().ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
         var CheckOut = new DateTimeOffset(_markedDates.Max().ToDateTime(TimeOnly.MaxValue), TimeSpan.Zero);
