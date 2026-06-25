@@ -1,5 +1,6 @@
 @page "/rooms/{RoomId:guid}"
 
+
 @using System.Diagnostics
 @using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Authorization
@@ -15,6 +16,8 @@
 @inject IReviewService ReviewService
 @inject IBookingService BookingService
 @inject IJSRuntime JS
+
+
 
 <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
     <h1>@_room?.Name</h1>
@@ -216,8 +219,8 @@
 
     private bool _IsBookingFormShown = false;
     [Parameter] public Guid RoomId { get; set; }
-    private RoomResponseDto _room;
-    private IEnumerable<ReviewResponseDto> _reviews;
+    private RoomResponseDto? _room;
+    private IEnumerable<ReviewResponseDto>? _reviews;
     private IEnumerable<RoomAvailabilityDto>? _occupiedRooms;
     private DateTime _currentDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
     private HashSet<DateOnly> _markedDates = new();
