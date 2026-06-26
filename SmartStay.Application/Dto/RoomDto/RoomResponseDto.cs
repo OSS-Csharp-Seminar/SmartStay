@@ -12,5 +12,6 @@ public record RoomResponseDto(
     BedType BedType,
     float AverageRating,
     RoomLocationDto Location,
-    List<string> Amenities
+    List<string> Amenities,
+    string ImagePath
     );

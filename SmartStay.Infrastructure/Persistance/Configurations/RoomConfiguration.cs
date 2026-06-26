@@ -36,6 +36,8 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
         builder.Property(r => r.CreatedAt)
             .HasColumnType("datetime")
             .HasDefaultValueSql("now()");
+        builder.Property(r => r.ImagePath)
+            .HasMaxLength(260);
 
         builder.HasOne(r => r.Location)
             .WithMany()
