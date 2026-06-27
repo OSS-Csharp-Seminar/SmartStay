@@ -2,8 +2,6 @@
 
 
 @using System.Diagnostics
-@using Blazored.LocalStorage
-@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application.Dto
 @using SmartStay.Application.Dto.BookingDto
@@ -32,7 +30,9 @@
         @*///image showcase *@
         <div class="col-lg-8">
             <div class="card mb-4" style="background-color: rgba(255, 255, 255, 0.1); border: none;">
-                <img src="@(_room?.ImagePath?? "SmartStay.Blazor/wwwroot/images/No-Image-Placeholder.png")"
+                <img src="@(string.IsNullOrWhiteSpace(_room?.ImagePath)
+                              ? "/images/No-Image-Placeholder.png"
+                              : CloudFlareBucket+_room.ImagePath)"
                      class="card-img-top"
                      alt="@_room?.Name"
                      style="height: 450px; object-fit: cover; border-radius: 8px;">
@@ -230,6 +230,7 @@
     private List<DateOnly>? _occupiedDates;
     private string _message = null;
     private float _totalPrice = 0;
+    private string CloudFlareBucket = "https://pub-6f98cd4b05094c92b2a0244d342400f8.r2.dev/images/";
     
     
     protected async override Task OnInitializedAsync()
