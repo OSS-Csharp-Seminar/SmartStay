@@ -18,7 +18,7 @@ public class UserCreationDtoMapper : IMapper<User,UserCreationRequestDto>
            PasswordHash = destination.Password,
            FirstName = destination.FirstName,
            LastName = destination.LastName,
-           // Role = destination.Role,
+            Role = destination.Role,
         };
     }
 }
