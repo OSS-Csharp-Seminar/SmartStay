@@ -47,15 +47,14 @@ public static class DependencyInjection
            
              options.TokenValidationParameters = new TokenValidationParameters
              {
-                //M.G:key, Issuser,audience hardcoded for now. hardcoded in JwtService as well
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer ="SmartStay" ,
-                ValidAudience ="SmartStay" ,
+                ValidIssuer =configuration["Jwt:Issuer"] ,
+                ValidAudience =configuration["Jwt:Audience"] ,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("a9F3kLm2Xq7ZpR8vT1nW6cB4yH0uD5Js")),
+                Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
                 ClockSkew = TimeSpan.Zero,
                  RoleClaimType = ClaimTypes.Role 
              };
