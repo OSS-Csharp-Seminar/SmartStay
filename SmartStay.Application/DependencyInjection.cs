@@ -18,6 +18,7 @@ using SmartStay.Application.Services.AI;
 using SmartStay.Application.Services.Authentication;
 using SmartStay.Application.Services.Recommendation;
 using SmartStay.Application.Services;
+using SmartStay.Application.Services;
 using SmartStay.Application.Util;
 using SmartStay.Domain.Entities;
 
@@ -83,6 +84,7 @@ public static class DependencyInjection
       
       services.AddHttpClient<IAiService, OllamaService>();
       services.AddScoped<IRecommendationService, RecommendationService>();
+      services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
 
       return services;
    }

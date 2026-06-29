@@ -18,6 +18,7 @@ public class SmartStayDbContext : DbContext, ISmartStayDbContext
     public DbSet<Payment> Payments => Set<Payment>();
 
     public DbSet<Location> Locations => Set<Location>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
