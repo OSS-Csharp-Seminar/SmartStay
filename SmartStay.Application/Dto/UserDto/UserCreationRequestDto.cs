@@ -7,5 +7,5 @@ public record UserCreationRequestDto(
     string Password,
     string FirstName,
     string LastName,
-    Role? Role
+    Role Role
     );

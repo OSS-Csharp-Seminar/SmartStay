@@ -1,0 +1,153 @@
+@page "/my-bookings"
+@using Microsoft.AspNetCore.Components.Authorization
+@using SmartStay.Application.Dto.BookingDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+@using SmartStay.Domain.Enums
+@using System.Security.Claims
+@layout MainLayout
+@inject IBookingService BookingService
+@inject NavigationManager Nav
+
+<PageTitle>My Bookings</PageTitle>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>My Bookings</h1>
+</div>
+
+@if (isLoading)
+{
+    <div class="p-4 container-md text-white" style="background-color:rgb(5, 39, 103)">
+        <p>Loading...</p>
+    </div>
+}
+else
+{
+    <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
+        <h4>Upcoming</h4>
+        @if (!upcoming.Any())
+        {
+            <p>No upcoming bookings.</p>
+        }
+        else
+        {
+            @foreach (var b in upcoming)
+            {
+                <div class="card mb-3" style="background-color: rgba(255,255,255,0.1);">
+                    <div class="card-body text-white">
+                        <h5 class="card-title">@b.RoomName</h5>
+                        <p>
+                            <strong>Check-in:</strong> @b.CheckIn.ToString("dd.MM.yyyy")<br />
+                            <strong>Check-out:</strong> @b.CheckOut.ToString("dd.MM.yyyy")<br />
+                            <strong>Nights:</strong> @b.Nights<br />
+                            <strong>Total:</strong> $@b.TotalPrice<br />
+                            <strong>Status:</strong> @b.Status
+                        </p>
+                        <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/rooms/" + b.RoomId)'>View Room</button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="p-4 rounded-3 text-white container-md mt-2" style="background-color:rgb(5, 39, 103)">
+        <h4>Active</h4>
+        @if (!active.Any())
+        {
+            <p>No active bookings.</p>
+        }
+        else
+        {
+            @foreach (var b in active)
+            {
+                <div class="card mb-3" style="background-color: rgba(255,255,255,0.1);">
+                    <div class="card-body text-white">
+                        <h5 class="card-title">@b.RoomName</h5>
+                        <p>
+                            <strong>Check-in:</strong> @b.CheckIn.ToString("dd.MM.yyyy")<br />
+                            <strong>Check-out:</strong> @b.CheckOut.ToString("dd.MM.yyyy")<br />
+                            <strong>Nights:</strong> @b.Nights<br />
+                            <strong>Total:</strong> $@b.TotalPrice<br />
+                            <strong>Status:</strong> @b.Status
+                        </p>
+                        <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/rooms/" + b.RoomId)'>View Room</button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="p-4 rounded-3 text-white container-md mt-2" style="background-color:rgb(5, 39, 103)">
+        <h4>Past</h4>
+        @if (!past.Any())
+        {
+            <p>No past bookings.</p>
+        }
+        else
+        {
+            @foreach (var b in past)
+            {
+                <div class="card mb-3" style="background-color: rgba(255,255,255,0.1);">
+                    <div class="card-body text-white">
+                        <h5 class="card-title">@b.RoomName</h5>
+                        <p>
+                            <strong>Check-in:</strong> @b.CheckIn.ToString("dd.MM.yyyy")<br />
+                            <strong>Check-out:</strong> @b.CheckOut.ToString("dd.MM.yyyy")<br />
+                            <strong>Nights:</strong> @b.Nights<br />
+                            <strong>Total:</strong> $@b.TotalPrice<br />
+                            <strong>Status:</strong> @b.Status
+                        </p>
+                        <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/rooms/" + b.RoomId)'>View Room</button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
+    private List<BookingResponseDto> upcoming = new();
+    private List<BookingResponseDto> active = new();
+    private List<BookingResponseDto> past = new();
+    private bool isLoading = true;
+    private string error = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateTask;
+        var userIdString = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
+            var userId = Guid.Parse(userIdString);
+            var bookings = (await BookingService.GetUserBookingsAsync(userId)).ToList();
+            var now = DateTimeOffset.UtcNow;
+
+            upcoming = bookings.Where(b => b.CheckIn > now && b.Status != BookingStatus.Cancelled).ToList();
+            active   = bookings.Where(b => b.CheckIn <= now && b.CheckOut >= now && b.Status != BookingStatus.Cancelled).ToList();
+            past     = bookings.Where(b => b.CheckOut < now || b.Status == BookingStatus.Cancelled).ToList();
+        }
+        catch (Exception ex)
+        {
+            error = $"Failed to load bookings: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
