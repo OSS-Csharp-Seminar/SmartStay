@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartStay.Application.Interfaces;
 using SmartStay.Domain.Interfaces;
 using SmartStay.Infrastructure.Persistance;
 using SmartStay.Infrastructure.Persistance.Migrations;
@@ -27,7 +28,9 @@ public static class DependencyInjection
          .AddScoped<IPaymentRepository, PaymentRepository>()
          .AddScoped<IAmenitiesRepository, AmenitiesRepository>()
          .AddScoped<ICancellationLogRepository, CancellationLogRepository>()
-         .AddScoped<ITransactionSecurity, TransactionSecurity>(); 
+         .AddScoped<ITransactionSecurity, TransactionSecurity>()
+         .AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>()
+         .AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }
