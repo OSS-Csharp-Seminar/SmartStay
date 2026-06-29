@@ -36,8 +36,6 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
         builder.Property(r => r.CreatedAt)
             .HasColumnType("datetime")
             .HasDefaultValueSql("now()");
-        builder.Property(r => r.ImagePath)
-            .HasMaxLength(260);
 
         builder.HasOne(r => r.Location)
             .WithMany()
@@ -57,6 +55,11 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
         builder.HasMany(r => r.Reviews)
             .WithOne(re => re.Room)
             .HasForeignKey(re => re.RoomId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(r => r.RoomImages)
+            .WithOne(ri => ri.Room)
+            .HasForeignKey(ri => ri.RoomId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasData(

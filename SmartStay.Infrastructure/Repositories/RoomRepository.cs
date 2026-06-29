@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using SmartStay.Domain.Dto;
 using SmartStay.Domain.Entities;
@@ -31,6 +32,7 @@ public class RoomRepository : Repository<Room>, IRoomRepository
         return await query.Include(r => r.Location)
             .Include(r => r.RoomAmenities).ThenInclude(ra => ra.Amenity)
             .Include(r => r.Reviews)
+            .Include(r => r.RoomImages)
             .ToListAsync();
     }
     
