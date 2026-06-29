@@ -24,4 +24,8 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\images\No-Image-Placeholder.png" />
+  </ItemGroup>
+
 </Project>

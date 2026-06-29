@@ -20,9 +20,11 @@ namespace SmartStay.Domain.Entities
         
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
+
         
         public ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<RoomImage> RoomImages { get; set; } = new List<RoomImage>();
     }
 }

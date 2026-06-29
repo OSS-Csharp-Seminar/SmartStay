@@ -22,8 +22,9 @@ public class RoomMapper : IMapper<Room,RoomResponseDto>
                 ,source.Location.City
                 ,source.Location.Address
                 ,source.Location.Longitude
-                ,source.Location.Latitude)
-                ,source.RoomAmenities.Select(r => r.Amenity.Name).ToList()
+                ,source.Location.Latitude),
+          source.RoomAmenities.Select(r => r.Amenity.Name).ToList(),
+           source.RoomImages.Select(r => r.FileName).ToList()
         );
     }
 
