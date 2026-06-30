@@ -74,12 +74,12 @@
             await JS.InvokeVoidAsync("setCookie", "id", response.UserId.ToString(), 120);
             await AuthenticationStateProvider.NotifyUserAuthenticationAsync(response.Token);
                     
-            error="uspjeh"; 
+            error="Login successful!";
         }
         catch (Exception e)
         {
             Debug.WriteLine("Error: "+e.Message);
-            error="Neispravan Email ili lozinka";
+            error="Invalid email or password.";
             return;
         }
 
