@@ -1,0 +1,258 @@
+@page "/create-room"
+@using System.Data
+@using System.Diagnostics
+@using SmartStay.Application.Dto
+@using SmartStay.Application.Dto.RoomDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+@using SmartStay.Domain.Enums
+@using SmartStay.Domain.Interfaces
+@layout MainLayout
+@inject IAmenityService AmenitiesServices
+@inject NavigationManager Nav
+@inject IRoomService RoomService
+@inject IRoomImageService  RoomImageService
+@inject ITransactionSecurity TransactionSecurity
+@inject IGeocodingService GeocodingService
+
+
+<PageTitle>Create Room</PageTitle>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>Create New Room</h1>
+</div>
+
+<EditForm Model="dto" OnSubmit="HandleRoomCreation" FormName="roomForm" class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
+    <ValidationSummary />
+    
+    <div class="row g-3">
+        <div class="col-12">
+            Room Name<br/>
+            <InputText type="text" class="form-control" @bind-Value="dto.Name" />
+        </div>
+        
+        <div class="col-12">
+            Description<br/>
+            <InputTextArea class="form-control" @bind-Value="dto.Description" rows="3" />
+        </div>
+        
+        <div class="col-md-6">
+            Capacity<br/>
+            <InputNumber class="form-control" @bind-Value="dto.Capacity" />
+        </div>
+        
+        <div class="col-md-6">
+            Price Per Night<br/>
+            <InputNumber class="form-control" @bind-Value="dto.PricePerNight" />
+        </div>
+        
+        <div class="col-md-6">
+            Size (m²)<br/>
+            <InputNumber class="form-control" @bind-Value="dto.Size" />
+        </div>
+        
+        <div class="col-md-6">
+            <label class="form-label">Bed Type</label>
+            <InputSelect class="form-control" @bind-Value="dto.BedType">
+                @foreach (var bedType in Enum.GetValues<BedType>())
+                {
+                    <option value="@bedType">@bedType</option>
+                }
+            </InputSelect>
+        </div>
+        
+        
+        <div class="col-md-6">
+            Address<br/>
+            <InputText class="form-control" @bind-Value="locationDto.Address" />
+        </div>
+        
+        <div class="col-md-6">
+            Country<br/>
+            <InputText class="form-control" @bind-Value="locationDto.Country" />
+        </div>       
+        
+        <div class="col-md-6">
+            City<br/>
+            <InputText class="form-control" @bind-Value="locationDto.City" />
+        </div>
+        
+        <div class="col-md-6">
+            PostalCode<br/>
+            <InputText class="form-control" @bind-Value="locationDto.PostalCode" />
+        </div>       
+        
+        <div class="col-12">
+            <label class="form-label">Room Amenities</label>
+            <div class="form-control" style="height: 150px; overflow-y: auto;">
+                @foreach (var amenity in availableAmenities)
+                {
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input"
+                               checked="@selectedAmenities[amenity.Id]"
+                               @onchange="@(e => selectedAmenities[amenity.Id] = (bool)e.Value!)" />
+                        <label class="form-check-label">@amenity.Name</label>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="col-12">
+            <label class="form-label">Images Upload</label>
+            <InputFile multiple class="form-control" OnChange="HandleImageUpload" accept=".jpg,.jpeg,.png" />
+            
+            @if (uploadedImagePaths.Any())
+            {
+                <div class="mt-2">
+                    <strong>Uploaded Images:</strong>
+                    <ul>
+                        @foreach (var path in uploadedImagePaths)
+                        {
+                            <li>@path</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <button type="submit" class="mt-3 btn btn-primary">Create Room</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-@(success ? "success" : "danger") mt-3">@message</div>
+}
+
+@code {
+
+    public class RoomDto {
+        public string Name { get; set; } =string.Empty; 
+        public string Description{ get; set; } =string.Empty; 
+        public int Capacity ; 
+        public float PricePerNight; 
+        public int Size; 
+        public BedType BedType =BedType.Double;  
+        public List<Guid> RoomAmenities =new(); 
+        public List<string> ImagePaths = new();
+    };
+
+    public class Location
+    {
+        public string City { get; set; }=string.Empty; 
+        public string Country { get; set; }=string.Empty; 
+        public string Address { get; set; }=string.Empty; 
+        public string PostalCode { get; set; }=string.Empty; 
+    }
+
+    public RoomDto dto =new();
+    private string message = "";
+    private bool success = false;
+    public Location locationDto= new();
+
+    private IEnumerable<AmenityResponseDto>? availableAmenities = Enumerable.Empty<AmenityResponseDto>(); 
+    private Dictionary<Guid, bool> selectedAmenities = new();
+    private List<IFormFile> formFiles = new List<IFormFile>();
+    private List<string> uploadedImagePaths = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableAmenities = await AmenitiesServices.GetAmenitiesAsync();
+        selectedAmenities = availableAmenities.ToDictionary(a => a.Id, _ => false);
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        
+        var files = e.GetMultipleFiles(10);
+        foreach (var file in files)
+        {
+
+            var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); //M.G: 5MB limit
+            var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            ms.Position = 0;
+
+            var formFile = new FormFile(ms, 0, ms.Length, file.Name, file.Name)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = file.ContentType
+            };
+
+            formFiles.Add(formFile);
+            uploadedImagePaths.Add(file.Name);
+        }
+        StateHasChanged();
+    }
+
+    private async Task HandleRoomCreation()
+    {
+        message = "";
+        success = false;
+
+        await TransactionSecurity.BeginTransactionAsync();
+        try
+        {
+            // Update DTO with selected amenities and images
+            dto.RoomAmenities = selectedAmenities
+                .Where(kv => kv.Value)
+                .Select(kv => kv.Key)
+                .ToList();
+
+            dto.ImagePaths = uploadedImagePaths.ToList();
+
+            if (dto.ImagePaths.Count == 0)
+            {
+                message = "Please upload at least one image.";
+                return;
+            }
+
+            var coordinates = await GeocodingService.GetCoordinatesAsync(locationDto.Address);
+
+            if (coordinates == null)
+                throw new NoNullAllowedException("Address is incorrect");
+
+            var requestDto = new RoomCreationDto
+            (
+                dto.Name,
+                 dto.Description,
+                 dto.Capacity,
+                 dto.PricePerNight,
+                 dto.Size,
+                 dto.BedType,
+                 dto.RoomAmenities,
+                 dto.ImagePaths,
+                     new LocationDto(
+                         locationDto.City
+                         ,locationDto.Country
+                         ,locationDto.Address
+                         ,locationDto.PostalCode
+                         ,(float)coordinates.Value.Latitude
+                         ,(float)coordinates.Value.Longitude
+                         )
+            );
+
+            
+             var RoomId= await RoomService.CreateRoom(requestDto);  
+            
+             await RoomImageService.UploadImagesAsync(RoomId, formFiles);
+
+           await TransactionSecurity.SaveChangesAsync();
+             await TransactionSecurity.CommitAsync();
+             
+            message = "Room created successfully!";
+            success = true;
+
+            Nav.NavigateTo("/"); 
+        }
+        catch (Exception e)
+        {
+            await TransactionSecurity.RollbackAsync();
+            Debug.WriteLine("Error: " + e.Message);
+            Debug.WriteLine("StackTrace: " + e.StackTrace);  // ← dodaj ovo
+            if (e.InnerException != null)
+                Debug.WriteLine("Inner: " + e.InnerException.Message);  // ← i ovo
+            message = "Room creation failed." + e.Message;
+        }
+    }
+}

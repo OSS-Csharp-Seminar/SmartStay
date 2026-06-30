@@ -10,12 +10,14 @@ public class RoomService : IRoomService
 {
     
     private readonly IRoomRepository _repository;
-    private readonly IMapper<Room,RoomResponseDto> _mapper;
+    private readonly IMapper<Room,RoomResponseDto> _RoomResponseMapper;
+    private readonly IMapper<Room,RoomCreationDto> _RoomCreationMapper;
     
-    public RoomService(IRoomRepository repository, IMapper<Room,RoomResponseDto> mapper)
+    public RoomService(IRoomRepository repository, IMapper<Room,RoomResponseDto> roomResponseMapper, IMapper<Room,RoomCreationDto> roomCreationMapper)
     {
         _repository = repository;
-        _mapper = mapper;
+        _RoomResponseMapper = roomResponseMapper;
+        _RoomCreationMapper = roomCreationMapper;
     }
     
     
@@ -24,7 +26,7 @@ public class RoomService : IRoomService
     {
        var rooms= await _repository.GetAllRoomsByQueryAsync(dto);
 
-       var dtos = rooms.Select(r => _mapper.ToDto(r)).ToList();
+       var dtos = rooms.Select(r => _RoomResponseMapper.ToDto(r)).ToList();
 
        return dtos;
     }
@@ -33,6 +35,14 @@ public class RoomService : IRoomService
     {
        var room = await _repository.GetByIdAsync(id);
         
-       return  _mapper.ToDto(room);
+       return  _RoomResponseMapper.ToDto(room);
+    }
+
+    public async Task<Guid> CreateRoom(RoomCreationDto dto)
+    {
+        var room = _RoomCreationMapper.ToSource(dto);
+        var newRoom = await _repository.AddAsync(room);
+        
+        return newRoom.Id;
     }
 }
