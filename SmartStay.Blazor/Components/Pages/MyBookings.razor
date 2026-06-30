@@ -1,0 +1,117 @@
+@page "/my-bookings"
+
+@using Microsoft.AspNetCore.Authorization
+@using SmartStay.Application.Dto.BookingDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+@using SmartStay.Domain.Enums
+
+@layout MainLayout
+@attribute [Authorize]
+@inject IBookingService BookingService
+@inject IJSRuntime JS
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>My Bookings</h1>
+</div>
+
+<div class="container-md mt-4">
+
+    @if (!string.IsNullOrEmpty(_message))
+    {
+        <div class="alert alert-info">@_message</div>
+    }
+
+    <h4 class="mt-4">Active Bookings</h4>
+
+    @if (_activeBookings == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (!_activeBookings.Any())
+    {
+        <p>You have no active bookings.</p>
+    }
+    else
+    {
+        @foreach (var booking in _activeBookings)
+        {
+            <div class="card p-3 mb-3" style="background-color: rgba(255, 255, 255, 0.1);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>@booking.RoomName</h5>
+                        <p class="mb-1">@booking.CheckIn.ToString("dd.MM.yyyy") - @booking.CheckOut.ToString("dd.MM.yyyy")</p>
+                        <p class="mb-1">Status: <strong>@booking.Status</strong></p>
+                        <p class="mb-0">Total: @booking.TotalPrice$</p>
+                    </div>
+
+                    @if (booking.Status == BookingStatus.Confirmed)
+                    {
+                        <button class="btn btn-outline-danger" @onclick="() => CancelBooking(booking.Id)">
+                            Cancel booking
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    <h4 class="mt-5">Previous Stays</h4>
+
+    @if (_previousBookings == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (!_previousBookings.Any())
+    {
+        <p>You have no previous stays.</p>
+    }
+    else
+    {
+        @foreach (var booking in _previousBookings)
+        {
+            <div class="card p-3 mb-3" style="background-color: rgba(255, 255, 255, 0.05);">
+                <h5>@booking.RoomName</h5>
+                <p class="mb-0">@booking.CheckIn.ToString("dd.MM.yyyy") - @booking.CheckOut.ToString("dd.MM.yyyy")</p>
+            </div>
+        }
+    }
+
+</div>
+
+@code {
+    private List<BookingResponseDto>? _activeBookings;
+    private List<BookingResponseDto>? _previousBookings;
+    private string? _message;
+    private Guid _userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userId = await JS.InvokeAsync<Guid>("getCookie", "id");
+        await LoadBookings();
+    }
+
+    private async Task LoadBookings()
+    {
+        var active = await BookingService.GetActiveUserBookingsAsync(_userId);
+        var previous = await BookingService.GetPreviousUserBookingsAsync(_userId);
+
+        _activeBookings = active.ToList();
+        _previousBookings = previous.ToList();
+    }
+
+    private async Task CancelBooking(Guid bookingId)
+    {
+        try
+        {
+            var dto = new CancelBookingRequestDto("Cancelled by user");
+            await BookingService.CancelBookingAsync(bookingId, dto);
+            _message = "Booking cancelled.";
+            await LoadBookings();
+        }
+        catch
+        {
+            _message = "Error: unable to cancel booking.";
+        }
+    }
+}   

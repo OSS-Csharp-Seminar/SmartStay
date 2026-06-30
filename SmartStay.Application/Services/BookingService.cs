@@ -137,6 +137,17 @@ public class BookingService : IBookingService
 
         return bookings.Select(b => _mapper.ToDto(b));
     }
+    public async Task<IEnumerable<BookingResponseDto>> GetActiveUserBookingsAsync(Guid userId)
+    {
+        var bookings = await _bookingRepository.GetActiveByUserIdAsync(userId);
+        return bookings.Select(b => ToDto(b, b.Room.Name));
+    }
+
+    public async Task<IEnumerable<BookingResponseDto>> GetPreviousUserBookingsAsync(Guid userId)
+    {
+        var bookings = await _bookingRepository.GetPreviousByUserIdAsync(userId);
+        return bookings.Select(b => ToDto(b, b.Room.Name));
+    }
 
     private static BookingResponseDto ToDto(Booking b, string roomName) => new(
         b.Id,

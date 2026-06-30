@@ -1,0 +1,61 @@
+@* Components/Reviews/ReviewForm.razor *@
+@using SmartStay.Application.Dto
+@using SmartStay.Application.Interfaces
+@inject IReviewService ReviewService
+
+<EditForm Model="_model" OnValidSubmit="HandleSubmit">
+    <div>
+        <label>Ocjena (1-5):</label>
+        <InputNumber @bind-Value="_model.Rating" min="1" max="5" />
+    </div>
+
+    <div>
+        <label>Komentar:</label>
+        <InputTextArea @bind-Value="_model.Comment" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <p class="error">@_errorMessage</p>
+    }
+
+    <button type="submit">Pošalji recenziju</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid RoomId { get; set; }
+
+    [Parameter]
+    public Guid UserId { get; set; } // dobiješ iz auth statea
+
+    [Parameter]
+    public EventCallback OnReviewSubmitted { get; set; }
+
+    private ReviewFormModel _model = new();
+    private string? _errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        _errorMessage = null;
+
+        try
+        {
+            var dto = new CreateReviewRequestDto(UserId, RoomId, _model.Rating, _model.Comment);
+            await ReviewService.CreateReviewAsync(dto);
+
+            _model = new();
+            await OnReviewSubmitted.InvokeAsync(); 
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private class ReviewFormModel
+    {
+        public int Rating { get; set; } = 5;
+        public string Comment { get; set; } = string.Empty;
+    }
+}
