@@ -8,4 +8,6 @@ public interface IRoomService
     Task<IEnumerable<RoomResponseDto>> GetRooms(RoomQueryDto dto);
     
     Task<RoomResponseDto> GetRoomById(Guid id);
+
+    Task<Guid> CreateRoom(RoomCreationDto dto);
 }

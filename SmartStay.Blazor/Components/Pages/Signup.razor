@@ -1,7 +1,5 @@
 ﻿@page "/signin"
 @using System.Diagnostics
-@using Blazored.LocalStorage
-@using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application
 @using SmartStay.Application.Dto.UserDto
 @using SmartStay.Application.Interfaces
@@ -103,7 +101,6 @@
             Debug.WriteLine("D-email: "+signupDto.Email);
             var response=await AuthenticationService.CreateUser(dto);
             
-            // await LocalStorage.SetItemAsync("id", response.UserId);
             
             HttpContextAccessor.HttpContext?.Response.Cookies.Append(
                 "id"

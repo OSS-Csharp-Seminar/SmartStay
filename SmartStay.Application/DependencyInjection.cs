@@ -19,6 +19,7 @@ using SmartStay.Application.Services.Authentication;
 using SmartStay.Application.Services.Recommendation;
 using SmartStay.Application.Services;
 using SmartStay.Application.Services;
+using SmartStay.Application.Services.ImageStorage;
 using SmartStay.Application.Util;
 using SmartStay.Domain.Entities;
 
@@ -62,12 +63,14 @@ public static class DependencyInjection
           });
    
        services.AddBlazoredLocalStorage();
-   
+
        services.AddSingleton<IPasswordHasher<string>, PasswordHasherArgon2>()
           .AddSingleton<IMapper<User, UserCreationRequestDto>, UserCreationDtoMapper>()
-          .AddSingleton<IMapper<Room,RoomResponseDto>,RoomMapper>()
-          .AddSingleton<IMapper<Review,ReviewResponseDto>,ReviewMapper>()
-          .AddSingleton<IMapper<Booking,RoomAvailabilityDto>,RoomAvailabilityMapper>()
+          .AddSingleton<IMapper<Room, RoomResponseDto>, RoomMapper>()
+          .AddSingleton<IMapper<Review, ReviewResponseDto>, ReviewMapper>()
+          .AddSingleton<IMapper<Booking, RoomAvailabilityDto>, RoomAvailabilityMapper>()
+          .AddSingleton<IMapper<Amenity, AmenityResponseDto>, AmenityMapper>()
+          .AddSingleton<IMapper<Room, RoomCreationDto>, RoomCreationMapper>()
           .AddSingleton<JwtSecurityTokenHandler>()
           .AddScoped<JwtService>()
           .AddScoped<IAuthenticationService,
@@ -76,8 +79,12 @@ public static class DependencyInjection
           .AddScoped<IBookingService, BookingService>()
           .AddScoped<IRoomService, RoomService>()
           .AddScoped<IReviewService, ReviewService>()
-          .AddScoped<ICustomAuthenticationStateProvider>(provider =>//M.G: because AuthenticationStateProvider doesn't have methods from IcustomstateProvider we cast it with this line (and we have to use him) and we have it in CustomStateProvider.
-             (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>());
+          .AddScoped<IAmenityService, AmenityService>()
+          .AddScoped<IRoomImageService, RoomImageStorageService>()
+          .AddScoped<
+             ICustomAuthenticationStateProvider>(provider => //M.G: because AuthenticationStateProvider doesn't have methods from IcustomstateProvider we cast it with this line (and we have to use him) and we have it in CustomStateProvider.
+             (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>())
+          .AddHttpClient<IGeocodingService, GeocodingService>(); 
    
       services.AddAppAuthorization();
       
