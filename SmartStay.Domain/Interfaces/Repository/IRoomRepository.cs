@@ -1,11 +1,12 @@
-﻿using SmartStay.Domain.Dto;
-using SmartStay.Domain.Entities;
-using SmartStay.Domain.Enums;
+﻿    using SmartStay.Domain.Dto;
+    using SmartStay.Domain.Entities;
+    using SmartStay.Domain.Enums;
 
-namespace SmartStay.Domain.Interfaces;
+    namespace SmartStay.Domain.Interfaces;
 
-public interface IRoomRepository : IRepository<Room>
-{
-    
-    Task<IEnumerable<Room>> GetAllRoomsByQueryAsync(RoomQueryDto dto);
-}
+    public interface IRoomRepository : IRepository<Room>
+    {
+        
+        Task<IEnumerable<Room>> GetAllRoomsByQueryAsync(RoomQueryDto dto);
+        Task UpdateAverageRatingAsync(Guid roomId, float averageRating);
+    }

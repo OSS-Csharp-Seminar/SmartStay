@@ -91,4 +91,12 @@ public class RoomRepository : Repository<Room>, IRoomRepository
 
         return query;
     }
+    public async Task UpdateAverageRatingAsync(Guid roomId, float averageRating)
+    {
+        var room = await GetByIdAsync(roomId)
+                   ?? throw new KeyNotFoundException($"Room '{roomId}' not found.");
+
+        room.AverageRating = averageRating;
+        await UpdateAsync(room); 
+    }
 }
