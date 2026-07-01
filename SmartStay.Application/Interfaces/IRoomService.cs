@@ -11,4 +11,6 @@ public interface IRoomService
 
     Task<Guid> CreateRoom(RoomCreationDto dto);
     Task<IEnumerable<RoomResponseDto>> GetRenterRoomsAsync(Guid renterId);
+    Task DeleteRoomAsync(Guid roomId, Guid renterId);
+    Task UpdateRoomAsync(Guid roomId, Guid renterId, RoomUpdateDto dto);
 }
