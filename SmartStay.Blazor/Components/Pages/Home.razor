@@ -4,6 +4,7 @@
 @using SmartStay.Application.Dto.RoomDto
 @using SmartStay.Application.Interfaces
 @using SmartStay.Domain.Dto
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject IRoomService RoomService
 @inject NavigationManager Nav
@@ -84,6 +85,7 @@
         public string? SortBy { get; set; } = "date";
         public string? IsDescending { get; set; } = "true";
     };
+
 
 
     private Qry searchDto = new();

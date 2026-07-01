@@ -1,6 +1,8 @@
 @page "/create-room"
 @using System.Data
 @using System.Diagnostics
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application.Dto
 @using SmartStay.Application.Dto.RoomDto
 @using SmartStay.Application.Interfaces
@@ -145,6 +147,9 @@
         public string PostalCode { get; set; }=string.Empty; 
     }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
     public RoomDto dto =new();
     private string message = "";
     private bool success = false;
@@ -157,6 +162,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateTask;
+        if (!authState.User.Identity?.IsAuthenticated ?? true)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
         availableAmenities = await AmenitiesServices.GetAmenitiesAsync();
         selectedAmenities = availableAmenities.ToDictionary(a => a.Id, _ => false);
     }
@@ -190,6 +202,10 @@
         message = "";
         success = false;
 
+        var authState = await AuthStateTask;
+        var userIdString = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+        var renterId = Guid.Parse(userIdString);
+
         await TransactionSecurity.BeginTransactionAsync();
         try
         {
@@ -215,21 +231,22 @@
             var requestDto = new RoomCreationDto
             (
                 dto.Name,
-                 dto.Description,
-                 dto.Capacity,
-                 dto.PricePerNight,
-                 dto.Size,
-                 dto.BedType,
-                 dto.RoomAmenities,
-                 dto.ImagePaths,
-                     new LocationDto(
-                         locationDto.City
-                         ,locationDto.Country
-                         ,locationDto.Address
-                         ,locationDto.PostalCode
-                         ,(float)coordinates.Value.Latitude
-                         ,(float)coordinates.Value.Longitude
-                         )
+                dto.Description,
+                dto.Capacity,
+                dto.PricePerNight,
+                dto.Size,
+                dto.BedType,
+                dto.RoomAmenities,
+                dto.ImagePaths,
+                new LocationDto(
+                    locationDto.City,
+                    locationDto.Country,
+                    locationDto.Address,
+                    locationDto.PostalCode,
+                    (float)coordinates.Value.Latitude,
+                    (float)coordinates.Value.Longitude
+                ),
+                renterId
             );
 
             

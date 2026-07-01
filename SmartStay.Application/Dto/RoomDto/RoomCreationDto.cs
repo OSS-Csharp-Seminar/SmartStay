@@ -12,5 +12,6 @@ public record RoomCreationDto(
     BedType BedType,
     List<Guid> RoomAmenities,
     List<string> ImagePaths,
-    LocationDto Location
+    LocationDto Location,
+    Guid RenterId
     );

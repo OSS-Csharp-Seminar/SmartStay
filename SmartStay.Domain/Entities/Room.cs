@@ -22,6 +22,9 @@ namespace SmartStay.Domain.Entities
         public Location Location { get; set; } = null!;
 
         
+        public Guid RenterId { get; set; }
+        public User Renter { get; set; } = null!;
+
         public ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();

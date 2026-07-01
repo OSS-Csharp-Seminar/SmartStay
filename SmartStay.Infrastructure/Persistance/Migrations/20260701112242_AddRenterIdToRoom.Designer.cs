@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartStay.Infrastructure.Persistance;
@@ -11,9 +12,11 @@ using SmartStay.Infrastructure.Persistance;
 namespace SmartStay.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(SmartStayDbContext))]
-    partial class SmartStayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260701112242_AddRenterIdToRoom")]
+    partial class AddRenterIdToRoom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,22 +56,22 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2e91381a-50b3-451c-b634-fbe4b583a3cc"),
+                            Id = new Guid("fec3770b-b67c-4641-b176-af7a37249f3c"),
                             Name = "Pool"
                         },
                         new
                         {
-                            Id = new Guid("9e197332-511f-48ab-9bfb-c33e3e46ee0b"),
+                            Id = new Guid("256d5bde-c7dc-45ea-a357-31c171d1df9d"),
                             Name = "Garage"
                         },
                         new
                         {
-                            Id = new Guid("6929d098-55f2-4766-adb5-faa959da725f"),
+                            Id = new Guid("b154c649-3194-4a5b-b9d1-2d3ae06c6e35"),
                             Name = "Gym"
                         },
                         new
                         {
-                            Id = new Guid("5d672992-9c9b-4fea-9bbf-87919570b642"),
+                            Id = new Guid("618bfb12-002e-40f4-ae8c-9e02dffd1484"),
                             Name = "Spa"
                         },
                         new
@@ -78,7 +81,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("dd4fd08b-5ab1-40aa-b056-6e9164404518"),
+                            Id = new Guid("b2e57b8d-a882-45b8-9484-91e2ab8d4322"),
                             Name = "Breakfast"
                         },
                         new
@@ -396,7 +399,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                             AverageRating = 4.8f,
                             BedType = "King",
                             Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 57, 37, 128, DateTimeKind.Unspecified).AddTicks(6765), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 22, 42, 173, DateTimeKind.Unspecified).AddTicks(1602), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Spacious room with stunning ocean views",
                             LocationId = new Guid("44fd2891-34ea-4a44-b8c3-f2716cd744e6"),
                             Name = "Deluxe Ocean View",
@@ -410,7 +413,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                             AverageRating = 4.6f,
                             BedType = "Queen",
                             Capacity = 4,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 57, 37, 128, DateTimeKind.Unspecified).AddTicks(7095), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 22, 42, 173, DateTimeKind.Unspecified).AddTicks(1999), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Perfect for families, with two bedrooms and a living area",
                             LocationId = new Guid("64a6ac13-7659-4434-9c39-403e98d7aa7e"),
                             Name = "Family Suite",
@@ -424,7 +427,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                             AverageRating = 4.4f,
                             BedType = "Single",
                             Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 57, 37, 128, DateTimeKind.Unspecified).AddTicks(7101), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 22, 42, 173, DateTimeKind.Unspecified).AddTicks(2044), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Ideal for business travelers with work desk and high-speed internet",
                             LocationId = new Guid("d106dc17-6a8c-4e91-8355-9a1a756f7833"),
                             Name = "Business Executive",
@@ -438,7 +441,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                             AverageRating = 4.9f,
                             BedType = "King",
                             Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 57, 37, 128, DateTimeKind.Unspecified).AddTicks(7104), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 22, 42, 173, DateTimeKind.Unspecified).AddTicks(2048), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Cozy room perfect for couples with fireplace and jacuzzi",
                             LocationId = new Guid("ebbff419-195d-4b57-af48-fac84d93f482"),
                             Name = "Romantic Getaway",
@@ -452,7 +455,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                             AverageRating = 4.2f,
                             BedType = "Single",
                             Capacity = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 57, 37, 128, DateTimeKind.Unspecified).AddTicks(7107), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 1, 11, 22, 42, 173, DateTimeKind.Unspecified).AddTicks(2052), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Compact yet comfortable studio with kitchenette",
                             LocationId = new Guid("f6aa2e4e-64b6-4608-b73d-89cb699f0382"),
                             Name = "Studio Apartment",
@@ -649,7 +652,7 @@ namespace SmartStay.Infrastructure.Persistance.Migrations
                     b.HasOne("SmartStay.Domain.Entities.User", "Renter")
                         .WithMany()
                         .HasForeignKey("RenterId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Location");

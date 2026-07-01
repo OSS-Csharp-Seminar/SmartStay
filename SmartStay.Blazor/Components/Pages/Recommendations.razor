@@ -2,8 +2,11 @@
 @using SmartStay.Application.Interfaces
 @using SmartStay.Application.Dto.RecommendationDto
 @using SmartStay.Domain.Enums
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IRecommendationService RecommendationService
+@inject NavigationManager Nav
 @rendermode InteractiveServer
+@inject IAmenityService AmenityService
 
 <div class="rec-page">
     <h2 class="rec-title">🏨 Room Recommendations</h2>
@@ -77,7 +80,7 @@
                 <h3 class="rec-results-title">@_results.Count room(s) found</h3>
                 @foreach (var room in _results)
                 {
-                    <div class="rec-card">
+                    <div class="rec-card" style="cursor:pointer;">
                         <div class="rec-card-left">
                             <div class="rec-score @ScoreClass(room.MatchScore)">
                                 @room.MatchScore%
@@ -105,6 +108,9 @@
                                     }
                                 </div>
                             }
+                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => GoToRoom(room.Id)">
+                                View &amp; Book
+                            </button>
                         </div>
                     </div>
                 }
@@ -114,6 +120,7 @@
 </div>
 
 @code {
+
     private float? _maxBudget;
     private int _guestCount = 1;
     private string? _city;
@@ -123,11 +130,7 @@
     private List<RoomRecommendationDto> _results = new();
     private List<string> _allCities = new();
 
-    private readonly List<string> _allAmenities = new()
-    {
-        "Wifi", "Air conditioning", "Pool", "Garage",
-        "Gym", "Spa", "Jacuzzi", "Breakfast", "Fireplace"
-    };
+    private List<string> _allAmenities = new();
 
     private readonly HashSet<string> _selectedAmenities = new();
 
@@ -139,6 +142,8 @@
     protected override async Task OnInitializedAsync()
     {
         _allCities = await RecommendationService.GetCitiesAsync();
+        var amenities = await AmenityService.GetAmenitiesAsync();
+        _allAmenities = amenities.Select(a => a.Name).ToList();
     }
 
     private void ToggleAmenity(string amenity)
@@ -167,6 +172,8 @@
         _loading = false;
         StateHasChanged();
     }
+
+    private void GoToRoom(Guid id) => Nav.NavigateTo("/rooms/" + id);
 
     private static string ScoreClass(int score) => score switch
     {

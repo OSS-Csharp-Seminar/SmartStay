@@ -37,6 +37,13 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
             .HasColumnType("datetime")
             .HasDefaultValueSql("now()");
 
+        builder.Property(r => r.RenterId).IsRequired();
+        builder.HasOne(r => r.Renter)
+            .WithMany()
+            .HasForeignKey(r => r.RenterId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
         builder.HasOne(r => r.Location)
             .WithMany()
             .HasForeignKey(r => r.LocationId)
@@ -74,6 +81,7 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
                 BedType = BedType.King,
                 AverageRating = 4.8f,
                 LocationId = Guid.Parse("44fd2891-34ea-4a44-b8c3-f2716cd744e6"),
+                RenterId = Guid.Parse("019e666d-05fb-7de1-9964-45e0e028a38a"),
                 CreatedAt = DateTime.UtcNow
             },
             new Room
@@ -87,6 +95,7 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
                 BedType = BedType.Queen,
                 AverageRating = 4.6f,
                 LocationId = Guid.Parse("64a6ac13-7659-4434-9c39-403e98d7aa7e"),
+                RenterId = Guid.Parse("019e666d-05fb-7de1-9964-45e0e028a38a"),
                 CreatedAt = DateTime.UtcNow
             },
             new Room
@@ -100,6 +109,7 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
                 BedType = BedType.Single,
                 AverageRating = 4.4f,
                 LocationId = Guid.Parse("d106dc17-6a8c-4e91-8355-9a1a756f7833"),
+                RenterId = Guid.Parse("019e666d-05fb-7de1-9964-45e0e028a38a"),
                 CreatedAt = DateTime.UtcNow
             },
             new Room
@@ -113,6 +123,7 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
                 BedType = BedType.King,
                 AverageRating = 4.9f,
                 LocationId = Guid.Parse("ebbff419-195d-4b57-af48-fac84d93f482"),
+                RenterId = Guid.Parse("019e666d-05fb-7de1-9964-45e0e028a38a"),
                 CreatedAt = DateTime.UtcNow
             },
             new Room
@@ -126,6 +137,7 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
                 BedType = BedType.Single,
                 AverageRating = 4.2f,
                 LocationId = Guid.Parse("f6aa2e4e-64b6-4608-b73d-89cb699f0382"),
+                RenterId = Guid.Parse("019e666d-05fb-7de1-9964-45e0e028a38a"),
                 CreatedAt = DateTime.UtcNow
             } 
         );

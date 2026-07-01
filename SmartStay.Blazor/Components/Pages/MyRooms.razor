@@ -1,0 +1,113 @@
+@page "/my-rooms"
+@using Microsoft.AspNetCore.Components.Authorization
+@using SmartStay.Application.Dto.RoomDto
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+@using System.Security.Claims
+@layout MainLayout
+@inject IRoomService RoomService
+@inject NavigationManager Nav
+
+<PageTitle>My Apartments</PageTitle>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>My Apartments</h1>
+</div>
+
+@if (isLoading)
+{
+    <div class="p-4 container-md">
+        <p>Loading...</p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger mt-3 container-md">@error</div>
+}
+else
+{
+    <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
+        @if (!rooms.Any())
+        {
+            <p>You haven't created any apartments yet.</p>
+            <a href="/create-room" class="btn btn-primary mt-2">Create your first apartment</a>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var room in rooms)
+                {
+                    <div class="col-12">
+                        <div class="card" style="background-color: rgba(255,255,255,0.1);">
+                            <div class="card-body text-white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="card-title">@room.Name</h5>
+                                        @if (!string.IsNullOrEmpty(room.Description))
+                                        {
+                                            <p class="text-light">@room.Description</p>
+                                        }
+                                        <p class="mb-1"><strong>Price:</strong> $@room.PricePerNight / night</p>
+                                        <p class="mb-1"><strong>Capacity:</strong> @room.Capacity guests</p>
+                                        <p class="mb-1"><strong>Bed type:</strong> @room.BedType</p>
+                                        <p class="mb-1"><strong>Size:</strong> @room.Size m²</p>
+                                        <p class="mb-1"><strong>Rating:</strong> @room.AverageRating.ToString("F1") ⭐</p>
+                                        @if (room.Location != null)
+                                        {
+                                            <p class="mb-1"><strong>Location:</strong> @room.Location.City, @room.Location.Country</p>
+                                        }
+                                        @if (room.Amenities.Any())
+                                        {
+                                            <p class="mb-1"><strong>Amenities:</strong> @string.Join(", ", room.Amenities)</p>
+                                        }
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-light btn-sm mt-2"
+                                        @onclick="() => GoToRoom(room.Id)">
+                                    View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
+    private List<RoomResponseDto> rooms = new();
+    private bool isLoading = true;
+    private string error = "";
+
+    private void GoToRoom(Guid id) => Nav.NavigateTo("/rooms/" + id);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateTask;
+        var userIdString = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
+            var renterId = Guid.Parse(userIdString);
+            rooms = (await RoomService.GetRenterRoomsAsync(renterId)).ToList();
+        }
+        catch (Exception ex)
+        {
+            error = "Failed to load apartments: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

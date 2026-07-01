@@ -23,6 +23,16 @@ public class RoomRepository : Repository<Room>, IRoomRepository
     //        .FirstOrDefaultAsync(r => r.Id == id);
     // }
     //
+    public async Task<IEnumerable<Room>> GetByRenterIdAsync(Guid renterId)
+    {
+        return await _dbSet
+            .Where(r => r.RenterId == renterId)
+            .Include(r => r.Location)
+            .Include(r => r.RoomAmenities).ThenInclude(ra => ra.Amenity)
+            .Include(r => r.RoomImages)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Room>> GetAllRoomsByQueryAsync(RoomQueryDto dto)
     {
         var query = _dbSet.AsQueryable();

@@ -4,6 +4,7 @@
 @using SmartStay.Domain.Entities
 @using SmartStay.Blazor.Components.Layout
 @using SmartStay.Domain.Dto
+@using Microsoft.AspNetCore.Components.Authorization
 @layout MainLayout
 @inject IRoomService RoomService
 @inject NavigationManager Nav
@@ -162,6 +163,7 @@
    };
 
     
+
     private Qry searchDto = new();
     private IEnumerable<RoomResponseDto>? rooms;
     private string message = null;
