@@ -1,10 +1,9 @@
 # SmartStay
 
 
-SmartStay is an AI-powered booking platform developed using **C# and .NET**.  
-The system allows users to search and reserve rooms while using **Artificial Intelligence to recommend the best rooms and predict reservation cancellations**.
+SmartStay is an AI-powered booking platform developed using **C# and ASP.NET**.  
+The system allows users to search and reserve rooms while using **Artificial Intelligence to recommend the best rooms**.
 
-This project demonstrates how **machine learning can be integrated into a real-world booking system**.
 
 ---
 
@@ -15,7 +14,6 @@ SmartStay combines a traditional booking platform with intelligent decision supp
 Users can browse rooms, make reservations, and manage their bookings while AI components help improve the experience through:
 
 - intelligent room recommendations
-- cancellation prediction
 - smart search
 - automated support assistance
 
@@ -37,7 +35,6 @@ The goal of the project is to explore how AI can improve **user experience and s
 
 ## Room Management
 
-Administrators can manage rooms within the system.
 
 Features include:
 
@@ -52,9 +49,10 @@ Features include:
 Room attributes include:
 
 - capacity
+- size
 - price
 - amenities
-- room type
+- bed type
 - rating
 - availability
 
@@ -110,28 +108,6 @@ The recommendation score is calculated using factors such as:
 
 ---
 
-## Cancellation Prediction (AI)
-
-A machine learning model predicts the **probability that a reservation will be cancelled**.
-
-This allows administrators to detect risky reservations and take preventive actions.
-
-Example prediction:
-
-Cancellation probability: **72%**
-
-Features used by the model:
-
-- days until check-in
-- reservation price
-- booking duration
-- user cancellation history
-- room type
-- season
-
-The prediction model is implemented using **ML.NET**.
-
----
 
 ## Smart Search
 
@@ -201,23 +177,6 @@ Rooms with the highest score are recommended to the user.
 
 ---
 
-## Cancellation Prediction Model
-
-Machine learning model used to estimate the likelihood of reservation cancellation.
-
-Model type:
-
-Binary Classification
-
-Technology used:
-
-ML.NET
-
-Purpose:
-
-Predict whether a reservation is likely to be cancelled.
-
----
 
 # Technology Stack
 
@@ -236,93 +195,10 @@ Predict whether a reservation is likely to be cancelled.
 
 ## Artificial Intelligence
 
-- ML.NET
-- OpenAI API (optional)
+- Ollama 
 
 ## Authentication
 
 - JWT Authentication
 
-```mermaid
-erDiagram
-
-    USERS {
-        int Id PK
-        string Email
-        string PasswordHash
-        string FirstName
-        string LastName
-        string Role
-        datetime CreatedAt
-        bool IsActive
-    }
-
-    ROOMS {
-        int Id PK
-        string Name
-        string Description
-        int Capacity
-        decimal PricePerNight
-        int Size
-        string BedType
-        float AverageRating
-        datetime CreatedAt
-    }
-
-    AMENITIES {
-        int Id PK
-        string Name
-    }
-
-    ROOM_AMENITIES {
-        int RoomId FK
-        int AmenityId FK
-    }
-
-    BOOKINGS {
-        int Id PK
-        int UserId FK
-        int RoomId FK
-        date CheckInDate
-        date CheckOutDate
-        decimal TotalPrice
-        string Status
-        datetime CreatedAt
-    }
-
-    PAYMENTS {
-        int Id PK
-        int BookingId FK
-        decimal Amount
-        string PaymentMethod
-        string PaymentStatus
-        datetime PaidAt
-    }
-
-    REVIEWS {
-        int Id PK
-        int UserId FK
-        int RoomId FK
-        int Rating
-        string Comment
-        datetime CreatedAt
-    }
-
-    CANCELLATION_LOGS {
-        int Id PK
-        int BookingId FK
-        datetime CancelledAt
-        int DaysBeforeCheckin
-        string Reason
-    }
-
-    USERS ||--o{ BOOKINGS : makes
-    ROOMS ||--o{ BOOKINGS : reserved
-    BOOKINGS ||--|| PAYMENTS : has
-    USERS ||--o{ REVIEWS : writes
-    ROOMS ||--o{ REVIEWS : receives
-    ROOMS ||--o{ ROOM_AMENITIES : contains
-    AMENITIES ||--o{ ROOM_AMENITIES : assigned
-    BOOKINGS ||--o{ CANCELLATION_LOGS : logs
-
-
+![image info](./Db_diagram.png)

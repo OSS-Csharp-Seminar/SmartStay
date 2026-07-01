@@ -41,7 +41,8 @@ else
                             <strong>Check-out:</strong> @b.CheckOut.ToString("dd.MM.yyyy")<br />
                             <strong>Nights:</strong> @b.Nights<br />
                             <strong>Total:</strong> $@b.TotalPrice<br />
-                            <strong>Status:</strong> @b.Status
+                            <strong>Status:</strong> @b.Status<br />
+                            <strong>Contact</strong> @b.email
                         </p>
                     </div>
                 </div>
@@ -67,7 +68,8 @@ else
                             <strong>Check-out:</strong> @b.CheckOut.ToString("dd.MM.yyyy")<br />
                             <strong>Nights:</strong> @b.Nights<br />
                             <strong>Total:</strong> $@b.TotalPrice<br />
-                            <strong>Status:</strong> @b.Status
+                            <strong>Status:</strong> @b.Status <br />
+                            <strong>Contact</strong> @b.email
                         </p>
                         @if (b.Status == BookingStatus.Confirmed)
                         {

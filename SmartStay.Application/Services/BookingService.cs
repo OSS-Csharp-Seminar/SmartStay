@@ -74,7 +74,7 @@ public class BookingService : IBookingService
             throw new TransactionAbortedException("error with booking creation");
         }
 
-        return ToDto(booking, room.Name);
+        return ToDto(booking, room.Name,null);
     }
 
     public async Task<BookingResponseDto> GetBookingAsync(Guid id)
@@ -82,19 +82,19 @@ public class BookingService : IBookingService
         var booking = await _bookingRepository.GetWithDetailsAsync(id)
             ?? throw new BookingNotFoundException(id);
 
-        return ToDto(booking, booking.Room.Name);
+        return ToDto(booking, booking.Room.Name,null);
     }
 
     public async Task<IEnumerable<BookingResponseDto>> GetUserBookingsAsync(Guid userId)
     {
         var bookings = await _bookingRepository.GetByUserIdAsync(userId);
-        return bookings.Select(b => ToDto(b, b.Room.Name));
+        return bookings.Select(b => ToDto(b, b.Room.Name,b.Room.Renter.Email));
     }
 
     public async Task<IEnumerable<BookingResponseDto>> GetRenterBookingsAsync(Guid renterId)
     {
         var bookings = await _bookingRepository.GetByRenterIdAsync(renterId);
-        return bookings.Select(b => ToDto(b, b.Room.Name));
+        return bookings.Select(b => ToDto(b, b.Room.Name,b.User.Email));
     }
 
     public async Task<BookingResponseDto> CancelBookingAsync(Guid id, CancelBookingRequestDto dto)
@@ -124,7 +124,7 @@ public class BookingService : IBookingService
         booking.Status = BookingStatus.Cancelled;
         await _bookingRepository.CancelAsync(booking, log);
 
-        return ToDto(booking, booking.Room.Name);
+        return ToDto(booking, booking.Room.Name,null);
     }
 
     public async Task<BookingResponseDto> MarkNoShowAsync(Guid bookingId)
@@ -141,7 +141,7 @@ public class BookingService : IBookingService
         booking.Status = BookingStatus.NotShowed;
         await _bookingRepository.UpdateAsync(booking);
 
-        return ToDto(booking, booking.Room.Name);
+        return ToDto(booking, booking.Room.Name,null);
     }
 
     public async Task<BookingResponseDto> UpdatePaymentMethodAsync(Guid bookingId, PaymentMethod method)
@@ -161,7 +161,7 @@ public class BookingService : IBookingService
         payment.PaymentMethod = method;
         await _paymentRepository.UpdateAsync(payment);
 
-        return ToDto(booking, booking.Room.Name);
+        return ToDto(booking, booking.Room.Name,null);
     }
 
     public async Task SyncStatusesAsync()
@@ -206,16 +206,16 @@ public class BookingService : IBookingService
     public async Task<IEnumerable<BookingResponseDto>> GetActiveUserBookingsAsync(Guid userId)
     {
         var bookings = await _bookingRepository.GetActiveByUserIdAsync(userId);
-        return bookings.Select(b => ToDto(b, b.Room.Name));
+        return bookings.Select(b => ToDto(b, b.Room.Name,null));
     }
 
     public async Task<IEnumerable<BookingResponseDto>> GetPreviousUserBookingsAsync(Guid userId)
     {
         var bookings = await _bookingRepository.GetPreviousByUserIdAsync(userId);
-        return bookings.Select(b => ToDto(b, b.Room.Name));
+        return bookings.Select(b => ToDto(b, b.Room.Name,null));
     }
 
-    private static BookingResponseDto ToDto(Booking b, string roomName) => new(
+    private static BookingResponseDto ToDto(Booking b, string roomName,string email) => new(
         b.Id,
         b.UserId,
         b.RoomId,
@@ -226,6 +226,7 @@ public class BookingService : IBookingService
         b.TotalPrice,
         b.Status,
         b.CreatedAt,
-        b.Payment?.PaymentMethod
+        b.Payment?.PaymentMethod,
+        email 
     );
 }
