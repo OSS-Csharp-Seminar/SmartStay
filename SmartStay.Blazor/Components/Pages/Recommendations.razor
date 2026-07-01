@@ -6,6 +6,7 @@
 @inject IRecommendationService RecommendationService
 @inject NavigationManager Nav
 @rendermode InteractiveServer
+@inject IAmenityService AmenityService
 
 <div class="rec-page">
     <h2 class="rec-title">🏨 Room Recommendations</h2>
@@ -129,11 +130,7 @@
     private List<RoomRecommendationDto> _results = new();
     private List<string> _allCities = new();
 
-    private readonly List<string> _allAmenities = new()
-    {
-        "Wifi", "Air conditioning", "Pool", "Garage",
-        "Gym", "Spa", "Jacuzzi", "Breakfast", "Fireplace"
-    };
+    private List<string> _allAmenities = new();
 
     private readonly HashSet<string> _selectedAmenities = new();
 
@@ -145,6 +142,8 @@
     protected override async Task OnInitializedAsync()
     {
         _allCities = await RecommendationService.GetCitiesAsync();
+        var amenities = await AmenityService.GetAmenitiesAsync();
+        _allAmenities = amenities.Select(a => a.Name).ToList();
     }
 
     private void ToggleAmenity(string amenity)
