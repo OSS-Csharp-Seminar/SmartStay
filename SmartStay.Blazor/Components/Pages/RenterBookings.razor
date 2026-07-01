@@ -1,4 +1,4 @@
-@page "/my-bookings"
+@page "/renter-bookings"
 @using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application.Dto.BookingDto
 @using SmartStay.Application.Interfaces
@@ -9,10 +9,10 @@
 @inject IBookingService BookingService
 @inject NavigationManager Nav
 
-<PageTitle>My Bookings</PageTitle>
+<PageTitle>Manage Bookings</PageTitle>
 
 <div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
-    <h1>My Bookings</h1>
+    <h1>Manage Bookings</h1>
 </div>
 
 @if (isLoading)
@@ -41,32 +41,8 @@ else
                             <strong>Check-out:</strong> @b.CheckOut.ToString("dd.MM.yyyy")<br />
                             <strong>Nights:</strong> @b.Nights<br />
                             <strong>Total:</strong> $@b.TotalPrice<br />
-                            <strong>Status:</strong> @b.Status<br />
-                            <strong>Payment:</strong> @(b.PaymentMethod?.ToString() ?? "Not chosen")
+                            <strong>Status:</strong> @b.Status
                         </p>
-
-                        <div class="d-flex gap-2 flex-wrap align-items-center">
-                            <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/rooms/" + b.RoomId)'>View Room</button>
-
-                            @if ((b.CheckIn - DateTimeOffset.UtcNow).TotalDays >= 3)
-                            {
-                                <button class="btn btn-danger" @onclick="() => CancelBooking(b.Id)">Cancel</button>
-                            }
-
-                            <select class="form-select form-select-sm" style="width:auto;"
-                                    value="@(b.PaymentMethod?.ToString() ?? "NotChosen")"
-                                    @onchange='e => ChangePaymentMethod(b.Id, e.Value != null ? e.Value.ToString() : "")'>
-                                @foreach (var m in Enum.GetValues<PaymentMethod>())
-                                {
-                                    <option value="@m">@m</option>
-                                }
-                            </select>
-                        </div>
-
-                        @if (bookingMessages.ContainsKey(b.Id))
-                        {
-                            <div class="mt-2 alert alert-info py-1">@bookingMessages[b.Id]</div>
-                        }
                     </div>
                 </div>
             }
@@ -93,7 +69,14 @@ else
                             <strong>Total:</strong> $@b.TotalPrice<br />
                             <strong>Status:</strong> @b.Status
                         </p>
-                        <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/rooms/" + b.RoomId)'>View Room</button>
+                        @if (b.Status == BookingStatus.Confirmed)
+                        {
+                            <button class="btn btn-warning" @onclick="() => MarkNoShow(b.Id)">Mark No Show</button>
+                        }
+                        @if (bookingMessages.ContainsKey(b.Id))
+                        {
+                            <div class="mt-2 alert alert-info py-1">@bookingMessages[b.Id]</div>
+                        }
                     </div>
                 </div>
             }
@@ -120,7 +103,6 @@ else
                             <strong>Total:</strong> $@b.TotalPrice<br />
                             <strong>Status:</strong> @b.Status
                         </p>
-                        <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/rooms/" + b.RoomId)'>View Room</button>
                     </div>
                 </div>
             }
@@ -159,13 +141,13 @@ else
         {
             await BookingService.SyncStatusesAsync();
 
-            var userId = Guid.Parse(userIdString);
-            var bookings = (await BookingService.GetUserBookingsAsync(userId)).ToList();
+            var renterId = Guid.Parse(userIdString);
+            var bookings = (await BookingService.GetRenterBookingsAsync(renterId)).ToList();
             var now = DateTimeOffset.UtcNow;
 
             upcoming = bookings.Where(b => b.CheckIn > now && b.Status == BookingStatus.Confirmed).ToList();
             active   = bookings.Where(b => b.CheckIn <= now && b.CheckOut >= now && b.Status != BookingStatus.Cancelled).ToList();
-            past     = bookings.Where(b => b.CheckOut < now || b.Status == BookingStatus.Cancelled).ToList();
+            past     = bookings.Where(b => b.CheckOut < now || b.Status == BookingStatus.Cancelled || b.Status == BookingStatus.NotShowed).ToList();
         }
         catch (Exception ex)
         {
@@ -177,29 +159,18 @@ else
         }
     }
 
-    private async Task CancelBooking(Guid bookingId)
+    private async Task MarkNoShow(Guid bookingId)
     {
         try
         {
-            await BookingService.CancelBookingAsync(bookingId, new CancelBookingRequestDto("Cancelled by guest."));
-            bookingMessages[bookingId] = "Booking cancelled.";
-            upcoming.RemoveAll(b => b.Id == bookingId);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            bookingMessages[bookingId] = $"Error: {ex.Message}";
-            StateHasChanged();
-        }
-    }
-
-    private async Task ChangePaymentMethod(Guid bookingId, string? value)
-    {
-        if (!Enum.TryParse<PaymentMethod>(value, out var method)) return;
-        try
-        {
-            await BookingService.UpdatePaymentMethodAsync(bookingId, method);
-            bookingMessages[bookingId] = "Payment method updated.";
+            await BookingService.MarkNoShowAsync(bookingId);
+            bookingMessages[bookingId] = "Marked as no-show.";
+            var booking = active.FirstOrDefault(b => b.Id == bookingId);
+            if (booking != null)
+            {
+                active.Remove(booking);
+                past.Add(booking);
+            }
             StateHasChanged();
         }
         catch (Exception ex)

@@ -21,6 +21,8 @@ public class RoomCreationMapper : IMapper<Room,RoomCreationDto>
            PricePerNight =  destination.PricePerNight,
            Size = destination.Size,
            BedType =  destination.BedType,
+           RenterId = destination.RenterId,
+
            Location = new Location
            {
                Address = destination.Location.Address,

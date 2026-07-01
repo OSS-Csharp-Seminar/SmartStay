@@ -12,5 +12,6 @@ public record BookingResponseDto(
     int Nights,
     decimal TotalPrice,
     BookingStatus Status,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    PaymentMethod? PaymentMethod
 );

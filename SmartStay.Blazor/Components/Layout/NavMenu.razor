@@ -51,6 +51,16 @@
                     <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Create Apartment
                 </NavLink>
             </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="my-rooms">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> My Apartments
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="renter-bookings">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Manage Bookings
+                </NavLink>
+            </div>
         </Authorized>
         </AuthorizeView>
         
@@ -87,6 +97,7 @@
     private async Task Logout()
     {
         await AuthenticationStateProvider.LogoutAsync();
+        Nav.NavigateTo("/login");
     }
     private async Task Login()
     {

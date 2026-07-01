@@ -8,4 +8,5 @@ public interface IRoomRepository : IRepository<Room>
 {
     
     Task<IEnumerable<Room>> GetAllRoomsByQueryAsync(RoomQueryDto dto);
+    Task<IEnumerable<Room>> GetByRenterIdAsync(Guid renterId);
 }

@@ -42,7 +42,13 @@ public class RoomService : IRoomService
     {
         var room = _RoomCreationMapper.ToSource(dto);
         var newRoom = await _repository.AddAsync(room);
-        
+
         return newRoom.Id;
+    }
+
+    public async Task<IEnumerable<RoomResponseDto>> GetRenterRoomsAsync(Guid renterId)
+    {
+        var rooms = await _repository.GetByRenterIdAsync(renterId);
+        return rooms.Select(r => _RoomResponseMapper.ToDto(r));
     }
 }

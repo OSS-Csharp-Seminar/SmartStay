@@ -84,7 +84,7 @@ public static class DependencyInjection
           .AddScoped<
              ICustomAuthenticationStateProvider>(provider => //M.G: because AuthenticationStateProvider doesn't have methods from IcustomstateProvider we cast it with this line (and we have to use him) and we have it in CustomStateProvider.
              (CustomAuthenticationStateProvider)provider.GetRequiredService<AuthenticationStateProvider>())
-          .AddHttpClient<IGeocodingService, GeocodingService>(); 
+          .AddHttpClient<IGeocodingService, GeocodingService>();
    
       services.AddAppAuthorization();
       

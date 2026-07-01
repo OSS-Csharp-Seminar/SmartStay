@@ -4,6 +4,7 @@
 @using SmartStay.Domain.Entities
 @using SmartStay.Blazor.Components.Layout
 @using SmartStay.Domain.Dto
+@using Microsoft.AspNetCore.Components.Authorization
 @layout MainLayout
 @inject IRoomService RoomService
 @inject NavigationManager Nav
@@ -162,9 +163,21 @@
    };
 
     
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
     private Qry searchDto = new();
     private IEnumerable<RoomResponseDto>? rooms;
     private string message = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateTask;
+        if (!authState.User.Identity?.IsAuthenticated ?? true)
+        {
+            Nav.NavigateTo("/login");
+        }
+    }
 
 
     private async Task SearchRooms()

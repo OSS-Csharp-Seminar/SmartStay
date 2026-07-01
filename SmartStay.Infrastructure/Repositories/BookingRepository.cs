@@ -27,8 +27,26 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
     {
         return await _dbContext.Bookings
             .Include(b => b.Room)
+            .Include(b => b.Payment)
             .Where(b => b.UserId == userId)
             .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Booking>> GetByRenterIdAsync(Guid renterId)
+    {
+        return await _dbContext.Bookings
+            .Include(b => b.Room)
+            .Include(b => b.Payment)
+            .Where(b => b.Room.RenterId == renterId)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Booking>> GetAllActiveForSyncAsync()
+    {
+        return await _dbContext.Bookings
+            .Where(b => b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.CheckedIn)
             .ToListAsync();
     }
 
