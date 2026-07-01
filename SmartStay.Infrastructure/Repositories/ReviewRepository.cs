@@ -15,4 +15,20 @@ public class ReviewRepository : Repository<Review>, IReviewRepository
     {
         return _dbSet.Where(r => r.RoomId == roomId).Include(r => r.User).ToList();
     }
+    public async Task<double> GetAverageRatingByRoomIdAsync(Guid roomId)
+    {
+        var reviews = await _dbSet
+            .Where(r => r.RoomId == roomId)
+            .ToListAsync();
+
+        if (!reviews.Any()) return 0;
+
+        return reviews.Average(r => r.Rating);
+    }
+
+    public async Task<Review?> GetByUserAndRoomAsync(Guid userId, Guid roomId)
+    {
+        return await _dbSet
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.RoomId == roomId);
+    }
 }

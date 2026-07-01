@@ -12,6 +12,7 @@ public class ReviewMapper : IMapper<Review,ReviewResponseDto>
             source.Id,
             source.UserId,
             source.User.FirstName+" "+source.User.LastName,
+            source.RoomId,         
             source.Rating,
             source.Comment,
             source.CreatedAt

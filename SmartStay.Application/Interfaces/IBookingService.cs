@@ -9,6 +9,8 @@ public interface IBookingService
     Task<BookingResponseDto> GetBookingAsync(Guid id);
     Task<IEnumerable<BookingResponseDto>> GetUserBookingsAsync(Guid userId);
     Task<IEnumerable<BookingResponseDto>> GetRenterBookingsAsync(Guid renterId);
+    Task<IEnumerable<BookingResponseDto>> GetActiveUserBookingsAsync(Guid userId);   
+    Task<IEnumerable<BookingResponseDto>> GetPreviousUserBookingsAsync(Guid userId); 
     Task<BookingResponseDto> CancelBookingAsync(Guid id, CancelBookingRequestDto dto);
     Task<BookingResponseDto> MarkNoShowAsync(Guid bookingId);
     Task<BookingResponseDto> UpdatePaymentMethodAsync(Guid bookingId, PaymentMethod method);
