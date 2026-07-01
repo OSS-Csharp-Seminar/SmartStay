@@ -1,0 +1,68 @@
+l@page "/account"
+@using Microsoft.AspNetCore.Components.Authorization
+@using SmartStay.Application
+@using SmartStay.Application.Interfaces
+@using SmartStay.Blazor.Components.Layout
+@using System.Security.Claims
+@layout MainLayout
+@inject IAuthenticationService AuthenticationService
+@inject ICustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+
+<PageTitle>Account Settings</PageTitle>
+
+<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
+    <h1>Account Settings</h1>
+</div>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger mt-3 container-md">@error</div>
+}
+
+<div class="p-4 rounded-3 container-md mt-3" style="background-color:rgb(80, 20, 20);">
+    <h5 class="text-white">Danger Zone</h5>
+    <p class="text-white-50">Deleting your account is permanent and cannot be undone.</p>
+    @if (!confirmDelete)
+    {
+        <button class="btn btn-danger" @onclick="() => confirmDelete = true">Delete My Account</button>
+    }
+    else
+    {
+        <p class="text-warning">Are you sure? This cannot be undone.</p>
+        <button class="btn btn-danger me-2" @onclick="DeleteAccount">Yes, delete my account</button>
+        <button class="btn btn-secondary" @onclick="() => confirmDelete = false">Cancel</button>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
+    private bool confirmDelete = false;
+    private string error = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateTask;
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            Nav.NavigateTo("/login");
+    }
+
+    private async Task DeleteAccount()
+    {
+        try
+        {
+            var authState = await AuthStateTask;
+            var userId = Guid.Parse(authState.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await AuthenticationService.DeleteAccountAsync(userId);
+            await AuthStateProvider.LogoutAsync();
+            Nav.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

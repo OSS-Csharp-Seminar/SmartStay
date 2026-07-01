@@ -45,14 +45,21 @@ public class AuthenticationService : IAuthenticationService
     public async Task<AuthenticationResponseDto> CreateUser(UserCreationRequestDto dto)
     {
         var user = _userCreationMapper.ToSource(dto);
-        
+
         user.PasswordHash=_passwordHasher.Hash(user.PasswordHash);
-        
+
         user=await _userRepository.AddAsync(user);
-        
+
         var token = _jwtService.GenerateToken(user);
-        
+
         return new AuthenticationResponseDto(token,user.Id);
+    }
+
+    public async Task DeleteAccountAsync(Guid userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId)
+            ?? throw new KeyNotFoundException("User not found.");
+        await _userRepository.DeleteAsync(user);
     }
 
 }

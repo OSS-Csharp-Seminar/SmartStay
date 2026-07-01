@@ -51,4 +51,30 @@ public class RoomService : IRoomService
         var rooms = await _repository.GetByRenterIdAsync(renterId);
         return rooms.Select(r => _RoomResponseMapper.ToDto(r));
     }
+
+    public async Task DeleteRoomAsync(Guid roomId, Guid renterId)
+    {
+        var room = await _repository.GetByIdAsync(roomId)
+            ?? throw new KeyNotFoundException("Room not found.");
+        if (room.RenterId != renterId)
+            throw new UnauthorizedAccessException("You don't own this room.");
+        await _repository.DeleteAsync(room);
+    }
+
+    public async Task UpdateRoomAsync(Guid roomId, Guid renterId, RoomUpdateDto dto)
+    {
+        var room = await _repository.GetByIdAsync(roomId)
+            ?? throw new KeyNotFoundException("Room not found.");
+        if (room.RenterId != renterId)
+            throw new UnauthorizedAccessException("You don't own this room.");
+
+        room.Name = dto.Name;
+        room.Description = dto.Description;
+        room.Capacity = dto.Capacity;
+        room.PricePerNight = dto.PricePerNight;
+        room.Size = dto.Size;
+        room.BedType = dto.BedType;
+
+        await _repository.UpdateAsync(room);
+    }
 }

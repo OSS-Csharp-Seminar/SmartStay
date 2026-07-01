@@ -3,9 +3,11 @@
 @using SmartStay.Application.Dto.RoomDto
 @using SmartStay.Application.Interfaces
 @using SmartStay.Blazor.Components.Layout
+@using SmartStay.Domain.Enums
 @using System.Security.Claims
 @layout MainLayout
 @inject IRoomService RoomService
+@inject ICustomAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 
 <PageTitle>My Apartments</PageTitle>
@@ -40,32 +42,55 @@ else
                     <div class="col-12">
                         <div class="card" style="background-color: rgba(255,255,255,0.1);">
                             <div class="card-body text-white">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="card-title">@room.Name</h5>
-                                        @if (!string.IsNullOrEmpty(room.Description))
+                                <h5 class="card-title">@room.Name</h5>
+                                @if (!string.IsNullOrEmpty(room.Description))
+                                {
+                                    <p class="text-light">@room.Description</p>
+                                }
+                                <p class="mb-1"><strong>Price:</strong> $@room.PricePerNight / night</p>
+                                <p class="mb-1"><strong>Capacity:</strong> @room.Capacity guests</p>
+                                <p class="mb-1"><strong>Bed type:</strong> @room.BedType</p>
+                                <p class="mb-1"><strong>Size:</strong> @room.Size m²</p>
+                                <p class="mb-1"><strong>Rating:</strong> @room.AverageRating.ToString("F1") ⭐</p>
+                                @if (room.Location != null)
+                                {
+                                    <p class="mb-1"><strong>Location:</strong> @room.Location.City, @room.Location.Country</p>
+                                }
+                                @if (room.Amenities.Any())
+                                {
+                                    <p class="mb-1"><strong>Amenities:</strong> @string.Join(", ", room.Amenities)</p>
+                                }
+
+                                @if (editingRoomId == room.Id)
+                                {
+                                    <div class="mt-3">
+                                        <input class="form-control mb-2 text-dark" @bind="editName" placeholder="Name" />
+                                        <textarea class="form-control mb-2 text-dark" @bind="editDescription" placeholder="Description"></textarea>
+                                        <input type="number" class="form-control mb-2 text-dark" @bind="editCapacity" placeholder="Capacity" />
+                                        <input type="number" class="form-control mb-2 text-dark" @bind="editPrice" placeholder="Price per night" />
+                                        <input type="number" class="form-control mb-2 text-dark" @bind="editSize" placeholder="Size (m²)" />
+                                        <select class="form-select mb-2 text-dark" @bind="editBedType">
+                                            @foreach (var bt in Enum.GetValues<BedType>())
+                                            {
+                                                <option value="@bt">@bt</option>
+                                            }
+                                        </select>
+                                        @if (!string.IsNullOrEmpty(editError))
                                         {
-                                            <p class="text-light">@room.Description</p>
+                                            <div class="alert alert-danger py-1">@editError</div>
                                         }
-                                        <p class="mb-1"><strong>Price:</strong> $@room.PricePerNight / night</p>
-                                        <p class="mb-1"><strong>Capacity:</strong> @room.Capacity guests</p>
-                                        <p class="mb-1"><strong>Bed type:</strong> @room.BedType</p>
-                                        <p class="mb-1"><strong>Size:</strong> @room.Size m²</p>
-                                        <p class="mb-1"><strong>Rating:</strong> @room.AverageRating.ToString("F1") ⭐</p>
-                                        @if (room.Location != null)
-                                        {
-                                            <p class="mb-1"><strong>Location:</strong> @room.Location.City, @room.Location.Country</p>
-                                        }
-                                        @if (room.Amenities.Any())
-                                        {
-                                            <p class="mb-1"><strong>Amenities:</strong> @string.Join(", ", room.Amenities)</p>
-                                        }
+                                        <button class="btn btn-success btn-sm" @onclick="() => SaveEdit(room.Id)">Save</button>
+                                        <button class="btn btn-secondary btn-sm ms-2" @onclick="CancelEdit">Cancel</button>
                                     </div>
-                                </div>
-                                <button class="btn btn-outline-light btn-sm mt-2"
-                                        @onclick="() => GoToRoom(room.Id)">
-                                    View
-                                </button>
+                                }
+                                else
+                                {
+                                    <div class="mt-2 d-flex gap-2">
+                                        <button class="btn btn-outline-light btn-sm" @onclick="() => GoToRoom(room.Id)">View</button>
+                                        <button class="btn btn-outline-warning btn-sm" @onclick="() => StartEdit(room)">Edit</button>
+                                        <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteRoom(room.Id)">Delete</button>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -73,6 +98,7 @@ else
             </div>
         }
     </div>
+
 }
 
 @code {
@@ -83,7 +109,71 @@ else
     private bool isLoading = true;
     private string error = "";
 
+    private Guid? editingRoomId;
+    private string editName = "";
+    private string? editDescription;
+    private int editCapacity;
+    private float editPrice;
+    private int editSize;
+    private BedType editBedType;
+    private string editError = "";
+
     private void GoToRoom(Guid id) => Nav.NavigateTo("/rooms/" + id);
+
+    private void StartEdit(RoomResponseDto room)
+    {
+        editingRoomId = room.Id;
+        editName = room.Name;
+        editDescription = room.Description;
+        editCapacity = room.Capacity;
+        editPrice = room.PricePerNight;
+        editSize = room.Size;
+        editBedType = room.BedType;
+        editError = "";
+    }
+
+    private void CancelEdit()
+    {
+        editingRoomId = null;
+        editError = "";
+    }
+
+    private async Task SaveEdit(Guid roomId)
+    {
+        try
+        {
+            var renterId = await GetUserId();
+            await RoomService.UpdateRoomAsync(roomId, renterId, new RoomUpdateDto(
+                editName, editDescription, editCapacity, editPrice, editSize, editBedType));
+            rooms = (await RoomService.GetRenterRoomsAsync(renterId)).ToList();
+            editingRoomId = null;
+        }
+        catch (Exception ex)
+        {
+            editError = ex.Message;
+        }
+    }
+
+    private async Task DeleteRoom(Guid roomId)
+    {
+        try
+        {
+            var renterId = await GetUserId();
+            await RoomService.DeleteRoomAsync(roomId, renterId);
+            rooms.RemoveAll(r => r.Id == roomId);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private async Task<Guid> GetUserId()
+    {
+        var authState = await AuthStateTask;
+        return Guid.Parse(authState.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    }
 
     protected override async Task OnInitializedAsync()
     {
