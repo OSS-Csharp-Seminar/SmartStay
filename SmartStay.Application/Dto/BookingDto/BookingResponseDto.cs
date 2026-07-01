@@ -13,5 +13,6 @@ public record BookingResponseDto(
     decimal TotalPrice,
     BookingStatus Status,
     DateTimeOffset CreatedAt,
-    PaymentMethod? PaymentMethod
+    PaymentMethod? PaymentMethod,
+    string email
 );

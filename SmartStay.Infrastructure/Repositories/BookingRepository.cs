@@ -26,7 +26,7 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
     public async Task<IEnumerable<Booking>> GetByUserIdAsync(Guid userId)
     {
         return await _dbContext.Bookings
-            .Include(b => b.Room)
+            .Include(b => b.Room).ThenInclude(r => r.Renter)
             .Include(b => b.Payment)
             .Where(b => b.UserId == userId)
             .OrderByDescending(b => b.CreatedAt)
@@ -37,6 +37,7 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
     {
         return await _dbContext.Bookings
             .Include(b => b.Room)
+            .Include(b => b.User)
             .Include(b => b.Payment)
             .Where(b => b.Room.RenterId == renterId)
             .OrderByDescending(b => b.CreatedAt)
