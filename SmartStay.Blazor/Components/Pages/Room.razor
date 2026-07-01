@@ -263,8 +263,6 @@
 
 @code {
 
-    [CascadingParameter]
-    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private bool _IsBookingFormShown = false;
     private bool _booked = false;
@@ -283,13 +281,6 @@
     
     protected async override Task OnInitializedAsync()
     {
-        var authState = await AuthStateTask;
-        if (!authState.User.Identity?.IsAuthenticated ?? true)
-        {
-            Nav.NavigateTo("/login");
-            return;
-        }
-
         _reviews = await ReviewService.GetAllByRoomIdAsync(RoomId);
         _room = await RoomService.GetRoomById(RoomId);
         _occupiedRooms= await BookingService.GetOccupiedRooms(RoomId);

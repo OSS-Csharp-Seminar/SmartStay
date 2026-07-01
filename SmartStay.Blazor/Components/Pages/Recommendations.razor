@@ -119,8 +119,6 @@
 </div>
 
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private float? _maxBudget;
     private int _guestCount = 1;
@@ -146,13 +144,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateTask;
-        if (!authState.User.Identity?.IsAuthenticated ?? true)
-        {
-            Nav.NavigateTo("/login");
-            return;
-        }
-
         _allCities = await RecommendationService.GetCitiesAsync();
     }
 

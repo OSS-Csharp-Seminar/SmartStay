@@ -87,8 +87,6 @@
     };
 
 
-    [CascadingParameter]
-    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private Qry searchDto = new();
     private IEnumerable<RoomResponseDto>? rooms;
@@ -96,13 +94,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-        var authState = await AuthStateTask;
-        if (!authState.User.Identity?.IsAuthenticated ?? true)
-        {
-            Nav.NavigateTo("/login");
-            return;
-        }
-
         try
         {
             if(searchDto is { PriceLowerRange: not null, PriceUpperRange: not null })
