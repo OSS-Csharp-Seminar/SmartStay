@@ -21,9 +21,6 @@ public class RoomImageConfiguration : IEntityTypeConfiguration<RoomImage>
             .IsRequired()
             .HasMaxLength(260);
         
-        builder.HasOne(ri => ri.Room)
-            .WithMany(r => r.RoomImages)
-            .HasForeignKey(ri => ri.RoomId)
-            .OnDelete(DeleteBehavior.Restrict);
+       
     }
 }
