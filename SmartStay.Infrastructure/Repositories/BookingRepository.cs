@@ -67,6 +67,24 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
             .Include(b => b.CancellationLog)
             .FirstOrDefaultAsync(b => b.Id == id);
     }
+    public async Task<IEnumerable<Booking>> GetActiveByUserIdAsync(Guid userId)
+    {
+        return await _dbSet
+            .Include(b => b.Room)
+            .Where(b => b.UserId == userId &&
+                        (b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.CheckedIn))
+            .OrderBy(b => b.CheckinDate)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Booking>> GetPreviousByUserIdAsync(Guid userId)
+    {
+        return await _dbSet
+            .Include(b => b.Room)
+            .Where(b => b.UserId == userId && b.Status == BookingStatus.CheckedOut)
+            .OrderByDescending(b => b.CheckOutDate)
+            .ToListAsync();
+    }
 
     // Cancellation updates booking status and creates the log atomically in one transaction
     public async Task CancelAsync(Booking booking, CancellationLog log)

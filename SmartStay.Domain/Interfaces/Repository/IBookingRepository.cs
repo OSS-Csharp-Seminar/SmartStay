@@ -10,5 +10,7 @@ public interface IBookingRepository : IRepository<Booking>
     Task<IEnumerable<Booking>> GetAllActiveForSyncAsync();
     Task<Booking?> GetWithDetailsAsync(Guid id);
     Task CancelAsync(Booking booking, CancellationLog log);
-    Task<IEnumerable<Booking>>  GetRoomOccupancyByRoomIdAsync(Guid roomId);
+    Task<IEnumerable<Booking>> GetRoomOccupancyByRoomIdAsync(Guid roomId);
+    Task<IEnumerable<Booking>> GetActiveByUserIdAsync(Guid userId);
+    Task<IEnumerable<Booking>> GetPreviousByUserIdAsync(Guid userId);
 }

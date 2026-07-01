@@ -1,0 +1,42 @@
+@* Components/Reviews/ReviewSection.razor *@
+@using SmartStay.Application.Dto
+@using SmartStay.Application.Interfaces
+@inject IReviewService ReviewService
+
+<div class="review-section">
+    <h3>Recenzije</h3>
+
+    @if (_reviews == null)
+    {
+        <p>Učitavanje...</p>
+    }
+    else if (!_reviews.Any())
+    {
+        <p>Još nema recenzija za ovu sobu.</p>
+    }
+    else
+    {
+        @foreach (var review in _reviews)
+        {
+            <div class="review-card">
+                <strong>@review.UserName</strong>
+                <span class="rating">⭐ @review.Rating/5</span>
+                <p>@review.Comment</p>
+                <small>@review.DateCreated.ToString("dd.MM.yyyy")</small>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid RoomId { get; set; }
+
+    private List<ReviewResponseDto>? _reviews;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await ReviewService.GetAllByRoomIdAsync(RoomId);
+        _reviews = result.ToList();
+    }
+}
