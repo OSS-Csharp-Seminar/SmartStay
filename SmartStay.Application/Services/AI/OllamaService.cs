@@ -23,22 +23,17 @@ public class OllamaService(HttpClient http, IRoomRepository roomRepository) : IA
         var roomContext = BuildRoomContext(rooms);
 
         var systemPrompt = $"""
-            You are a helpful assistant embedded inside SmartStay — a hotel management and booking system.
+            You are a helpful assistant inside SmartStay, a hotel booking app.
 
-            Domain overview:
-            - Rooms: name, description, capacity, price per night, size, bed type (Single/Double/Queen/King), average rating, amenities, location (city)
-            - Bookings: check-in/check-out dates, status (Pending/Confirmed/CheckedIn/CheckedOut/Cancelled/Completed)
-            - Users: guests and staff, roles (Guest/Admin), JWT-based authentication
-            - Payments: amount, method (CreditCard/Cash/BankTransfer), status (Pending/Completed/Refunded)
-            - Reviews: text reviews linked to rooms and users
-            - Amenities: features attached to rooms (e.g. WiFi, AC, Pool)
+            Rules you must follow:
+            1. Reply in the same language the user writes in. Croatian input = Croatian reply. English input = English reply.
+            2. You only know about the rooms listed below. You have NO information about any user's bookings, check-ins, payments or account. Do not guess or make up this information.
+            3. If asked about personal bookings (e.g. "which room am I in", "what are my reservations"), reply with exactly: "Za informacije o vašim rezervacijama posjetite stranicu 'My Bookings' u aplikaciji." (or in English: "For your booking information, visit the 'My Bookings' page in the app.")
+            4. Keep answers short and natural. No formal or robotic language.
+            5. Only answer questions about rooms or general booking questions.
 
-            ROOMS CURRENTLY IN THE SYSTEM:
+            AVAILABLE ROOMS:
             {roomContext}
-
-            When users ask about room recommendations, use the room data above to suggest specific options.
-            You can only READ data — never suggest or imply any modification to the database.
-            Be concise and helpful.
             """;
 
         var messages = new List<object>

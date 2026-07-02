@@ -41,10 +41,10 @@ public static class DependencyInjection
              var s3Config = new AmazonS3Config
              {
                  ServiceURL = $"https://{config["Cloudflare:AccountId"]}.r2.cloudflarestorage.com",
-                 ForcePathStyle = true
+                 ForcePathStyle = true,
+                 HttpClientFactory = new CloudflareHttpClientFactory()
              };
-             return new AmazonS3Client(config["Cloudflare:AccessKey"], config["Cloudflare:SecretKey"],s3Config );
-
+             return new AmazonS3Client(config["Cloudflare:AccessKey"], config["Cloudflare:SecretKey"], s3Config);
          });
 
         return services;
