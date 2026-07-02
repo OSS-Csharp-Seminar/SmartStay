@@ -231,12 +231,15 @@
     </div>
 
 @* M.G: google maps *@
-<iframe
-    width="600" height="450"
-    style="border:0"
-    loading="lazy"
-    src="https://www.google.com/maps?q=@(_room.Location.Latitude),@(_room.Location.Longitude)&z=14&output=embed">
-</iframe>
+@if (_room != null)
+{
+    <iframe
+        width="600" height="450"
+        style="border:0"
+        loading="lazy"
+        src="https://www.google.com/maps?q=@(_room.Location.Latitude),@(_room.Location.Longitude)&z=14&output=embed">
+    </iframe>
+}
 
 <div class="container-md mt-5">
     <div class="card p-4" style="background-color: rgba(255, 255, 255, 0.1);">
@@ -244,26 +247,29 @@
 
         <AuthorizeView>
             <Authorized>
-                <div class="mb-4 p-3 border-bottom border-light border-opacity-25">
-                    <h5>Leave a review</h5>
+                @if (CanUserLeaveReview)
+                {
+                    <div class="mb-4 p-3 border-bottom border-light border-opacity-25">
+                        <h5>Leave a review</h5>
 
-                    @if (!string.IsNullOrEmpty(_reviewMessage))
-                    {
-                        <div class="alert alert-info">@_reviewMessage</div>
-                    }
+                        @if (!string.IsNullOrEmpty(_reviewMessage))
+                        {
+                            <div class="alert alert-info">@_reviewMessage</div>
+                        }
 
-                    <div class="mb-2">
-                        <label>Rating (1-5):</label>
-                        <InputNumber @bind-Value="_reviewRating" min="1" max="5" class="form-control" style="max-width: 100px;" />
+                        <div class="mb-2">
+                            <label>Rating (1-5):</label>
+                            <InputNumber @bind-Value="_reviewRating" min="1" max="5" class="form-control" style="max-width: 100px;"/>
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Comment:</label>
+                            <InputTextArea @bind-Value="_reviewComment" class="form-control"/>
+                        </div>
+
+                        <button class="btn btn-primary mt-2" @onclick="SubmitReview">Submit review</button>
                     </div>
-
-                    <div class="mb-2">
-                        <label>Comment:</label>
-                        <InputTextArea @bind-Value="_reviewComment" class="form-control" />
-                    </div>
-
-                    <button class="btn btn-primary mt-2" @onclick="SubmitReview">Submit review</button>
-                </div>
+                }
             </Authorized>
 
             <NotAuthorized>
@@ -281,7 +287,14 @@
                         <span class="text-warning"><b>Rating:</b> @review.Rating★</span>
                     </div>
                     <p class="mt-2 text-dark">@review.Comment</p>
-                <small class="text-light-emphasis"><b>On day:</b> @review.DateCreated.LocalDateTime</small>
+                    <small class="text-light-emphasis"><b>On day:</b> @review.DateCreated.LocalDateTime</small>
+                    @if (review.UserId == userId)
+                    {
+                        <button class="btn btn-danger btn-sm mt-2" 
+                                @onclick="() => DeleteReview(review.Id)">
+                             Delete
+                        </button> 
+                    }
                 </div>
             }
         }
@@ -296,7 +309,8 @@
 
 @code {
 
-
+    Guid userId=Guid.Empty;
+    bool CanUserLeaveReview=false;
     private bool _IsBookingFormShown = false;
     private bool _booked = false;
     private PaymentMethod _selectedPaymentMethod = PaymentMethod.CreditCard;
@@ -318,10 +332,12 @@
     
     protected async override Task OnInitializedAsync()
     {
+        userId = await JS.InvokeAsync<Guid>("getCookie", "id");
         _reviews = await ReviewService.GetAllByRoomIdAsync(RoomId);
         _room = await RoomService.GetRoomById(RoomId);
         _occupiedRooms= await BookingService.GetOccupiedRooms(RoomId);
         _occupiedDates =OccupiedRoomsTypeConverter() ?? null;
+        CanUserLeaveReview = await BookingService.CanUserLeaveReviewAsync(userId, RoomId);
     }
 
     public void ShowBookingForm()
@@ -349,13 +365,11 @@
 
     private async Task BookRoom()
     {
-        var Userid = await JS.InvokeAsync<Guid>("getCookie","id");
-
 
         var Checkin = new DateTimeOffset(_markedDates.Min().ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
         var CheckOut = new DateTimeOffset(_markedDates.Max().ToDateTime(TimeOnly.MaxValue), TimeSpan.Zero);
 
-        var dto = new CreateBookingRequestDto(Userid, RoomId, Checkin, CheckOut);
+        var dto = new CreateBookingRequestDto(userId, RoomId, Checkin, CheckOut);
 
         try
         {
@@ -375,8 +389,6 @@
     {
         try
         {
-            var userId = await JS.InvokeAsync<Guid>("getCookie", "id");
-
             var dto = new CreateReviewRequestDto(userId, RoomId, _reviewRating, _reviewComment);
             await ReviewService.CreateReviewAsync(dto);
 
@@ -392,7 +404,27 @@
         }
         catch (Exception ex)
         {
-            _reviewMessage = $"Error: {ex.Message}";
+            if(_reviews.FirstOrDefault(r => r.UserId==userId) != null)
+                 _reviewMessage = $"Your review already exists!";
+           else 
+            _reviewMessage = $"Error with creation of review";
+        }
+    }
+
+    private async Task DeleteReview(Guid reviewId)
+    {
+        try
+        {
+            await ReviewService.DeleteReviewAsync(reviewId);
+            
+            //M.G: tmp fix
+            _reviews = _reviews.Where(r => r.Id != reviewId).ToList();
+            
+            StateHasChanged();
+        }
+        catch
+        {
+            _reviewMessage = "Error with review deletion";
         }
     }
 

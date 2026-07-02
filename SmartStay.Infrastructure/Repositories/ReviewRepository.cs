@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartStay.Domain.Entities;
+using SmartStay.Domain.Enums;
 using SmartStay.Domain.Interfaces;
 using SmartStay.Infrastructure.Persistance;
 
@@ -31,4 +32,6 @@ public class ReviewRepository : Repository<Review>, IReviewRepository
         return await _dbSet
             .FirstOrDefaultAsync(r => r.UserId == userId && r.RoomId == roomId);
     }
+
+ 
 }

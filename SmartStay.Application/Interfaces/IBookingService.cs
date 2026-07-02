@@ -16,4 +16,5 @@ public interface IBookingService
     Task<BookingResponseDto> UpdatePaymentMethodAsync(Guid bookingId, PaymentMethod method);
     Task SyncStatusesAsync();
     Task<IEnumerable<RoomAvailabilityDto>> GetOccupiedRooms(Guid roomId);
+    Task<bool> CanUserLeaveReviewAsync(Guid userId, Guid RoomId);
 }

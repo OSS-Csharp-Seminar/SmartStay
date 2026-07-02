@@ -13,4 +13,5 @@ public interface IBookingRepository : IRepository<Booking>
     Task<IEnumerable<Booking>> GetRoomOccupancyByRoomIdAsync(Guid roomId);
     Task<IEnumerable<Booking>> GetActiveByUserIdAsync(Guid userId);
     Task<IEnumerable<Booking>> GetPreviousByUserIdAsync(Guid userId);
+    Task<bool> CanUserLeaveReviewAsync(Guid userId, Guid RoomId);
 }

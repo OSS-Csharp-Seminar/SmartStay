@@ -203,6 +203,12 @@ public class BookingService : IBookingService
         var bookings = await _bookingRepository.GetRoomOccupancyByRoomIdAsync(roomId);
         return bookings.Select(b => _mapper.ToDto(b));
     }
+
+    public async Task<bool> CanUserLeaveReviewAsync(Guid userId, Guid RoomId)
+    {
+       return await _bookingRepository.CanUserLeaveReviewAsync(userId, RoomId); 
+    }
+
     public async Task<IEnumerable<BookingResponseDto>> GetActiveUserBookingsAsync(Guid userId)
     {
         var bookings = await _bookingRepository.GetActiveByUserIdAsync(userId);

@@ -87,6 +87,14 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
             .ToListAsync();
     }
 
+    public async Task<bool> CanUserLeaveReviewAsync(Guid userId, Guid RoomId)
+    {
+       return await _dbSet.AnyAsync(
+           b => b.RoomId == RoomId
+                && b.UserId == userId
+                && b.Status == BookingStatus.CheckedOut); 
+    }
+
     // Cancellation updates booking status and creates the log atomically in one transaction
     public async Task CancelAsync(Booking booking, CancellationLog log)
     {
