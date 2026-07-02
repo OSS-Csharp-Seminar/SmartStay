@@ -9,62 +9,70 @@
 @inject IRoomService RoomService
 @inject NavigationManager Nav
 
-<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103); text-align: center">
-    <h1>New Apartments</h1>
+<div class="p-5 rounded-3 text-white text-center mb-4" style="background-color:rgb(5, 39, 103);">
+    <h1 class="fw-bold">New Apartments</h1>
+    <p class="text-white-50 mb-0">Fresh stays added by hosts across the map.</p>
 </div>
 
-<div class="p-4 rounded-3 text-white container-md" style="background-color:rgb(5, 39, 103)">
-    @if (rooms != null)
+<div class="container-md">
+    @if (rooms == null)
     {
-        @if (rooms.Any())
-        {
-            <div class="row">
-                @foreach (var room in rooms)
-                {
-                    <div class="col-12 mb-4">
-                        <div class="card" style="background-color: rgba(255, 255, 255, 0.1);">
-                            <div class="card-body">
-                                <h5 class="card-title">@room.Name</h5>
-                                <p class="card-text">
-                                    <strong>Price:</strong> @room.PricePerNight $<br/>
-                                    <strong>Capacity:</strong> @room.Capacity<br/>
-                                    <strong>Rating:</strong> @room.AverageRating<br/>
-                                    <strong>Location:</strong> @room.Location.City, @room.Location.Country<br/>
-                        
-                                    @if (room.Amenities.Any())
-                                    {
-                                        <strong>Amenities: </strong>
-                                        @for (int i = 0; i < 3; i++)
-                                        {
-                                            if (i >= room.Amenities.Count())
-                                            {
-                                                break;
-                                            }
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!rooms.Any())
+    {
+        <div class="text-center py-5">
+            <p class="fs-5 mb-1">No stays found at the moment.</p>
+            <p class="text-muted">Try widening your dates or clearing a filter.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var room in rooms)
+            {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@room.Name</h5>
+                                <span class="badge bg-warning text-dark">★ @room.AverageRating.ToString("0.0")</span>
+                            </div>
 
-                                            <span>@room.Amenities.ElementAt(i)</span>
-                                            @if (i < room.Amenities.Count() - 1)
-                                            {
-                                                <span>, </span>
-                                            }
-                                        }
-                                        @if (room.Amenities.Count() >= 3)
-                                        {
-                                            <span> ...</span>
-                                        }
+                            <p class="text-muted mb-1">
+                                <i class="bi bi-geo-alt"></i> @room.Location.City, @room.Location.Country
+                            </p>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-people"></i> @room.Capacity guests
+                            </p>
+
+                            @if (room.Amenities != null && room.Amenities.Any())
+                            {
+                                <div class="mb-3">
+                                    @foreach (var amenity in room.Amenities.Take(3))
+                                    {
+                                        <span class="badge bg-light text-dark border me-1">@amenity</span>
                                     }
-                                </p>
-                                <button class="btn btn-success" @onclick="() => NavigateToRoom(room.Id)">View Details</button>
+                                    @if (room.Amenities.Count() > 3)
+                                    {
+                                        <span class="badge bg-light text-dark border">+@(room.Amenities.Count() - 3) more</span>
+                                    }
+                                </div>
+                            }
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
+                                <span class="fs-5 fw-bold text-success">@room.PricePerNight$ <small class="fs-6 fw-normal text-muted">/night</small></span>
+                                <button class="btn btn-primary btn-sm" @onclick="() => NavigateToRoom(room.Id)">View Details</button>
                             </div>
                         </div>
                     </div>
-                }
-            </div>
-        
-        }
-        else
-        {
-            <p>No rooms found at moment.</p>
-        }
+                </div>
+            }
+        </div>
     }
 </div>
 

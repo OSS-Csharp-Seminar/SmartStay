@@ -233,12 +233,18 @@
 @* M.G: google maps *@
 @if (_room != null)
 {
-    <iframe
-        width="600" height="450"
-        style="border:0"
-        loading="lazy"
-        src="https://www.google.com/maps?q=@(_room.Location.Latitude),@(_room.Location.Longitude)&z=14&output=embed">
-    </iframe>
+    <div class="text-center my-5">
+        <div class="mx-auto shadow-sm rounded-3 overflow-hidden" style="max-width: 700px;">
+            <iframe
+                width="100%"
+                height="450"
+                style="border:0"
+                loading="lazy"
+                allowfullscreen
+                src="https://www.google.com/maps?q=@(_room.Location.Latitude),@(_room.Location.Longitude)&z=15&output=embed">
+            </iframe>
+        </div>
+    </div>
 }
 
 <div class="container-md mt-5">
@@ -332,12 +338,22 @@
     
     protected async override Task OnInitializedAsync()
     {
-        userId = await JS.InvokeAsync<Guid>("getCookie", "id");
+        try//M.G: tmp fix
+        {
+            userId = await JS.InvokeAsync<Guid>("getCookie", "id");
+        }
+        catch
+        {
+           userId=Guid.Empty; 
+        }
+
+        Debug.WriteLine("this bitch righ there:"+userId);
         _reviews = await ReviewService.GetAllByRoomIdAsync(RoomId);
         _room = await RoomService.GetRoomById(RoomId);
         _occupiedRooms= await BookingService.GetOccupiedRooms(RoomId);
         _occupiedDates =OccupiedRoomsTypeConverter() ?? null;
-        CanUserLeaveReview = await BookingService.CanUserLeaveReviewAsync(userId, RoomId);
+        if(userId!=Guid.Empty)
+            CanUserLeaveReview = await BookingService.CanUserLeaveReviewAsync(userId, RoomId);
     }
 
     public void ShowBookingForm()
