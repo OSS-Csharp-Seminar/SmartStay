@@ -55,11 +55,17 @@ public class AuthenticationService : IAuthenticationService
         return new AuthenticationResponseDto(token,user.Id);
     }
 
+    //M.G:doesnt delete user but disables account.
     public async Task DeleteAccountAsync(Guid userId)
     {
         var user = await _userRepository.GetByIdAsync(userId)
             ?? throw new KeyNotFoundException("User not found.");
-        await _userRepository.DeleteAsync(user);
+        
+        user.FirstName= "Deleted user";
+        user.LastName= " ";
+        user.Email= $"deleted-user-{user.Id}";
+        
+        await _userRepository.UpdateAsync(user);
     }
 
 }
