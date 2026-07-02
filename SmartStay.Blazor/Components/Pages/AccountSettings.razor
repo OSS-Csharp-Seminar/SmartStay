@@ -1,12 +1,17 @@
 @page "/account"
+@using System.Diagnostics
 @using Microsoft.AspNetCore.Components.Authorization
 @using SmartStay.Application
 @using SmartStay.Application.Interfaces
 @using SmartStay.Blazor.Components.Layout
 @using System.Security.Claims
+@using Amazon.S3.Model
+@using SmartStay.Domain.Entities
+@using SmartStay.Domain.Enums
 @layout MainLayout
 @inject IAuthenticationService AuthenticationService
 @inject ICustomAuthenticationStateProvider AuthStateProvider
+@inject IBookingService BookingService
 @inject NavigationManager Nav
 
 <PageTitle>Account Settings</PageTitle>
@@ -56,13 +61,32 @@
         {
             var authState = await AuthStateTask;
             var userId = Guid.Parse(authState.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var userBookings = (await BookingService.GetUserBookingsAsync(userId)).ToList();
+            var renterBookings = (await BookingService.GetRenterBookingsAsync(userId)).ToList();
+
+
+            if (!userBookings.All(b => b.CheckOut < DateTimeOffset.UtcNow || b.Status == BookingStatus.Cancelled))
+            {
+                throw new AccessDeniedException("there are active bookings where you are guest!");
+            }
+
+            if (!renterBookings.All(b => b.CheckOut < DateTimeOffset.UtcNow || b.Status == BookingStatus.Cancelled))
+            {
+                throw new AccessDeniedException("there are active bookings where you are renter!");
+            }
+
             await AuthenticationService.DeleteAccountAsync(userId);
             await AuthStateProvider.LogoutAsync();
             Nav.NavigateTo("/login");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex.Message.Contains("there are active bookings"))
         {
             error = ex.Message;
+        }
+        catch (Exception ex)
+        {
+             error = "Error with account deletion!";
         }
     }
 }
