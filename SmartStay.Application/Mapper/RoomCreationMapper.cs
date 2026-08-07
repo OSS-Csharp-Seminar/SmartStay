@@ -22,7 +22,10 @@ public class RoomCreationMapper : IMapper<Room,RoomCreationDto>
            Size = destination.Size,
            BedType =  destination.BedType,
            RenterId = destination.RenterId,
-
+           RoomAmenities = destination.RoomAmenities.Select(amenityId => new RoomAmenity
+           {
+               AmenityId = amenityId
+           }).ToList(),
            Location = new Location
            {
                Address = destination.Location.Address,
